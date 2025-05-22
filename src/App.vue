@@ -1,85 +1,76 @@
 <script setup lang="ts">
-import { RouterLink, RouterView } from 'vue-router'
-import HelloWorld from './interfaces/components/HelloWorld.vue'
+import { RouterView } from 'vue-router'
+import { ref } from 'vue'
+import SidebarMenuLeftComponent from './shared/components/sidebar/SidebarMenuLeftComponent.vue';
+import SidebarTopComponent from './shared/components/sidebar/SidebarTopComponent.vue';
+
+const isSidebarOpen = ref(true)
 </script>
 
 <template>
-  <header>
-    <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="125" height="125" />
+  <div class="min-h-screen bg-gradient-to-br from-violet-50 via-white to-fuchsia-50">
+    <!-- Sidebar -->
+    <SidebarMenuLeftComponent :is-sidebar-open="isSidebarOpen" />
+    
+    <!-- Main Content -->
+    <div
+      :class="[
+        'transition-all duration-300 ease-in-out',
+        isSidebarOpen ? 'ml-72' : 'ml-0'
+      ]"
+    >
+      <!-- Top Navigation -->
+      <SidebarTopComponent 
+        :is-sidebar-open="isSidebarOpen" 
+        @is-sidebar-open-event="(event) => isSidebarOpen = event"
+      />
 
-    <div class="wrapper">
-      <HelloWorld msg="You did it!" />
-
-      <nav>
-        <RouterLink to="/">Home</RouterLink>
-        <RouterLink to="/about">About</RouterLink>
-      </nav>
+      <!-- Page Content -->
+      <main class="p-6">
+        <div class="max-w-7xl mx-auto">
+          <div class="bg-white/60 backdrop-blur-sm rounded-3xl shadow-sm border border-violet-100/50 p-6">
+            <RouterView />
+          </div>
+        </div>
+      </main>
     </div>
-  </header>
-
-  <RouterView />
+  </div>
 </template>
 
-<style scoped>
-header {
-  line-height: 1.5;
-  max-height: 100vh;
+<style>
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
 }
 
-.logo {
-  display: block;
-  margin: 0 auto 2rem;
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
 }
 
-nav {
-  width: 100%;
-  font-size: 12px;
-  text-align: center;
-  margin-top: 2rem;
+::-webkit-scrollbar-thumb {
+  background: #8b5cf6;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
-nav a.router-link-exact-active {
-  color: var(--color-text);
+::-webkit-scrollbar-thumb:hover {
+  background: #7c3aed;
 }
 
-nav a.router-link-exact-active:hover {
-  background-color: transparent;
+/* Smooth transitions */
+.transition-all {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
 
-nav a {
-  display: inline-block;
-  padding: 0 1rem;
-  border-left: 1px solid var(--color-border);
-}
-
-nav a:first-of-type {
-  border: 0;
-}
-
-@media (min-width: 1024px) {
-  header {
-    display: flex;
-    place-items: center;
-    padding-right: calc(var(--section-gap) / 2);
-  }
-
-  .logo {
-    margin: 0 2rem 0 0;
-  }
-
-  header .wrapper {
-    display: flex;
-    place-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  nav {
-    text-align: left;
-    margin-left: -1rem;
-    font-size: 1rem;
-
-    padding: 1rem 0;
-    margin-top: 1rem;
-  }
+/* Glass effect */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(139, 92, 246, 0.1);
 }
 </style>

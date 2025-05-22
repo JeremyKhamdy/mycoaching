@@ -17,22 +17,22 @@
 # ------------------------------------------------
 
 # Step 1 : Use official node.js image for building
-FROM node:21-alpine
+FROM node:22-alpine
 
 # Define the working directory for the container
 WORKDIR /app
 
 ## Copy the package.json file (package.json et package-lock.json)
-#COPY package*.json ./
+COPY package*.json ./
 #
 ## Install dependencies
-#RUN npm install
+RUN npm install
 #
 ## Copie du reste des fichiers du projet
-#COPY . .
+COPY . .
 
 # Exposition du port 5173 par défaut pour Vite
 EXPOSE 5173
 
 # Commande pour démarrer le serveur de développement Vite
-#CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "dev"]
