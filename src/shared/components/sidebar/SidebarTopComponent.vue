@@ -1,69 +1,64 @@
 <script lang="ts" setup>
+import { RouterLink } from 'vue-router'
+
 defineProps<{
     isSidebarOpen: boolean
 }>()
 
-const emit = defineEmits<{
-  (e: 'is-sidebar-open-event', value: boolean): void
-}>()
+// const emit = defineEmits<{
+//   (e: 'is-sidebar-open-event', value: boolean): void
+// }>()
+
+const navigation = [
+  { name: 'Dashboard', to: '/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+  { name: 'Comptes utilisateurs', to: '/accounts', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+]
 </script>
 
 <template>
-  <div class="sticky top-0 z-40 glass-effect border-b border-violet-100/50">
+  <div class="sticky top-0 z-40 bg-white py-4">
     <div class="flex items-center justify-between h-16 px-6">
       <!-- Left side -->
-      <div class="flex items-center">
-        <button
-          @click="emit('is-sidebar-open-event', !isSidebarOpen)"
-          class="p-2 rounded-2xl text-gray-500 hover:text-violet-600 hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-200 transition-all duration-200"
-        >
-          <svg
-            class="h-5 w-5"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
-        </button>
-      </div>
-
-      <!-- Right side -->
       <div class="flex items-center space-x-4">
-        <!-- Search -->
-        <div class="relative">
-          <input
-            type="text"
-            placeholder="Search..."
-            class="w-64 pl-10 pr-4 py-2 text-sm border border-violet-100 rounded-2xl focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-transparent transition-all duration-200"
+        <!-- <button v-if="!isSidebarOpen"
+        @click="emit('is-sidebar-open-event', !isSidebarOpen)"
+        class="p-2 rounded-2xl text-gray-300 hover:text-orange-400 hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-800 transition-all duration-200"
+        >
+        <svg
+          class="h-5 w-5"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"
           />
-          <svg
-            class="absolute left-3 top-2.5 h-4 w-4 text-gray-400"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
+        </svg>
+      </button> -->
+        <!-- Navigation -->
+        <nav class="hidden md:flex items-center space-x-4">
+          <RouterLink
+            v-for="item in navigation"
+            :key="item.name"
+            :to="item.to"
+            class="group flex items-center px-4 py-2 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105"
+            :class="[
+              $route.path === item.to
+                ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg shadow-blue-900/30'
+                : 'text-gray-300 hover:bg-blue-900/30 hover:text-orange-400'
+            ]"
           >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-            />
-          </svg>
-        </div>
-
-        <!-- Notifications -->
-        <button class="p-2 rounded-2xl text-gray-500 hover:text-violet-600 hover:bg-violet-50 focus:outline-none focus:ring-2 focus:ring-violet-200 transition-all duration-200">
-          <div class="relative">
-            <svg
-              class="h-5 w-5"
+            <!-- <svg
+              class="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110"
+              :class="[
+                $route.path === item.to
+                  ? 'text-white'
+                  : 'text-gray-400 group-hover:text-orange-400'
+              ]"
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
               viewBox="0 0 24 24"
@@ -73,40 +68,16 @@ const emit = defineEmits<{
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                :d="item.icon"
               />
-            </svg>
-            <span class="absolute -top-1 -right-1 h-4 w-4 bg-gradient-to-r from-violet-500 to-fuchsia-500 rounded-full text-xs text-white flex items-center justify-center">
-              3
-            </span>
-          </div>
-        </button>
+            </svg> -->
+            {{ item.name }}
+          </RouterLink>
+        </nav>
+      </div>
 
-        <!-- User Menu -->
-        <div class="relative">
-          <button
-            class="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-violet-200 rounded-2xl p-1 hover:bg-violet-50 transition-all duration-200"
-          >
-            <img
-              class="h-8 w-8 rounded-full ring-2 ring-violet-200"
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt=""
-            />
-            <span class="text-sm font-medium text-gray-700">John Doe</span>
-            <svg
-              class="h-5 w-5 text-gray-400"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                clip-rule="evenodd"
-              />
-            </svg>
-          </button>
-        </div>
+      <!-- Right side -->
+      <div class="flex items-center space-x-4">
       </div>
     </div>
   </div>
