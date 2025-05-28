@@ -2,7 +2,6 @@
 import { ref, onMounted } from 'vue';
 import { useAccountStore } from '../store/useAccountStore';
 import AccountsListComponent from '../components/AccountsListComponent.vue';
-import UsersFilterComponent from '../components/AccountsFilterComponent.vue';
 import AccountFormComponent from '../components/AccountFormComponent.vue';
 import type { Account } from '../models/Account';
 
@@ -29,16 +28,11 @@ const handleDelete = async (accountId: number) => {
   }
 };
 
-const handleCreate = () => {
-  editingAccount.value = null;
-  showAccountForm.value = true;
-};
-
 const handleFormSubmit = async (accountData: Partial<Omit<Account, 'id'>>) => {
   if (editingAccount.value) {
     await store.updateAccount(editingAccount.value.id, accountData);
   } else {
-    await store.createAccount(accountData);
+    // await store.createAccount(accountData);
   }
   showAccountForm.value = false;
   editingAccount.value = null;
@@ -50,7 +44,7 @@ const handleFormSubmit = async (accountData: Partial<Omit<Account, 'id'>>) => {
     <!-- Header -->
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-night-900">Utilisateurs</h1>
-      <button
+      <!-- <button
         @click="handleCreate"
         class="btn-primary flex items-center space-x-2"
       >
@@ -58,16 +52,16 @@ const handleFormSubmit = async (accountData: Partial<Omit<Account, 'id'>>) => {
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
         <span>Nouvel utilisateur</span>
-      </button>
+      </button> -->
     </div>
 
     <!-- Filters -->
-    <div class="card">
+    <!-- <div class="card">
       <UsersFilterComponent
         v-model:searchQuery="searchQuery"
         v-model:statusFilter="statusFilter"
       />
-    </div>
+    </div> -->
 
     <!-- Users List -->
     <div class="card">

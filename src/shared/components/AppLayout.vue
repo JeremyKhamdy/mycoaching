@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
-import SidebarMenuLeftComponent from './sidebar/SidebarMenuLeftComponent.vue';
+import SidebarLeftComponent from './sidebar/SidebarLeftComponent.vue';
 import SidebarTopComponent from './sidebar/SidebarTopComponent.vue';
 import { useAccountStore } from '@/modules/accounts/store/useAccountStore';
 import type { User } from '@supabase/supabase-js';
@@ -18,22 +18,21 @@ onMounted(async () => {
 <template>
   <div class="min-h-screen bg-white p-4">
     <!-- Sidebar -->
-    <SidebarMenuLeftComponent 
+    <SidebarLeftComponent 
     :is-sidebar-open="isSidebarOpen" 
-    @is-sidebar-open-event="(event) => isSidebarOpen = event" 
     />
     
     <!-- Main Content -->
     <div
       :class="[
         'transition-all duration-300 ease-in-out',
-        isSidebarOpen ? 'ml-72' : 'ml-12'
+        isSidebarOpen ? 'ml-72' : 'ml-0'
       ]"
     >
       <!-- Top Navigation -->
       <SidebarTopComponent 
       :is-sidebar-open="isSidebarOpen" 
-      @is-sidebar-open-event="(event) => isSidebarOpen = event"
+      @update:isSidebarOpen="(event) => isSidebarOpen = event"
       />
 
       <!-- Page Content -->

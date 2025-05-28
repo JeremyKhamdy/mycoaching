@@ -9,10 +9,6 @@ defineProps<{
     isSidebarOpen: boolean
 }>();
 
-const emit = defineEmits<{
-  (e: 'is-sidebar-open-event', value: boolean): void
-}>()
-
 const handleLogout = async () => {
   try {
     await authStore.signOut()
@@ -26,8 +22,8 @@ const handleLogout = async () => {
 <template>
   <aside
     :class="[
-      'fixed inset-y-4 rounded-xl z-50 w-72 transform transition-transform duration-300 ease-in-out glass-effect bg-blue-950/95',
-      isSidebarOpen ? 'translate-x-0' : ' -translate-x-60'
+      'fixed inset-y-4 rounded-xl z-50 w-72 transform transition-transform duration-300 ease-in-out glass-effect bg-gradient-to-br from-night-900 via-night-800 to-night-950',
+      isSidebarOpen ? 'translate-x-0' : ' -translate-x-full'
     ]"
   >
     <!-- Logo et bouton de slideout -->
@@ -41,25 +37,6 @@ const handleLogout = async () => {
           MyCoaching
         </span>
       </div>
-      <button
-        @click="emit('is-sidebar-open-event', !isSidebarOpen)"
-        class="p-2 rounded-2xl text-gray-300 hover:text-orange-400 hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-800 transition-all duration-200"
-      >
-        <svg
-          class="h-5 w-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button>
     </div>
 
     <!-- User Profile -->

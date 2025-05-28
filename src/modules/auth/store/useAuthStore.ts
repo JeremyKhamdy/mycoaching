@@ -8,6 +8,8 @@ export const useAuthStore = defineStore('auth', () => {
   const actualSession = ref<Session | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
+  const pendingVerification = ref<boolean>(false)
+  const pendingVerificationEmail = ref<string>('')
 
   const fetchUser = async () => {
     console.log('Fetching user...')
@@ -59,15 +61,91 @@ export const useAuthStore = defineStore('auth', () => {
     await supabase.auth.signOut()
     actualSession.value = null
     user.value = null
+    pendingVerification.value = false
+    pendingVerificationEmail.value = ''
+  }
+
+  const initUser = async () => {
+    try {
+      loading.value = true
+      const {
+        data: { user: currentUser }
+      } = await supabase.auth.getUser()
+      user.value = currentUser
+    } catch (e) {
+      error.value = "Erreur lors de la récupération de l'utilisateur"
+      console.error(e)
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const sendOTP = async (email: string) => {
+    try {
+      loading.value = true
+      error.value = null
+      const { error: signInError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: false
+        }
+      })
+      if (signInError) throw signInError
+      pendingVerification.value = true
+      pendingVerificationEmail.value = email
+    } catch (e: any) {
+      error.value = e.message || "Erreur lors de l'envoi du code OTP"
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const verifyOTP = async (token: string) => {
+    if (!pendingVerification.value) {
+      throw new Error('Aucune vérification en attente')
+    }
+
+    try {
+      loading.value = true
+      error.value = null
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        email: pendingVerificationEmail.value,
+        token,
+        type: 'email'
+      })
+      if (verifyError) throw verifyError
+      user.value = data.user
+      actualSession.value = data.session
+      pendingVerification.value = false
+      pendingVerificationEmail.value = ''
+      return data
+    } catch (e: any) {
+      error.value = e.message || 'Erreur lors de la vérification du code OTP'
+      throw e
+    } finally {
+      loading.value = false
+    }
+  }
+
+  const clearPendingVerification = () => {
+    pendingVerification.value = false
+    pendingVerificationEmail.value = ''
   }
 
   return {
-    fetchUser,
-    signIn,
-    signOut,
     user,
     actualSession,
     loading,
-    error
+    error,
+    pendingVerification,
+    pendingVerificationEmail,
+    fetchUser,
+    signIn,
+    signOut,
+    initUser,
+    sendOTP,
+    verifyOTP,
+    clearPendingVerification
   }
 })

@@ -7,16 +7,20 @@ import { ArrowPathIcon } from '@heroicons/vue/24/solid';
 
 const router = useRouter();
 const authStore = useAuthStore();
-const email = ref('');
+const otpCode = ref('');
 
-const handleSendOTP = async () => {
+const handleVerifyOTP = async () => {
   try {
-    await authStore.sendOTP(email.value);
+    await authStore.verifyOTP(otpCode.value);
+    router.push({ name: 'dashboard' });
   } catch (e) {
     // L'erreur est déjà gérée dans le store
-  } finally {
-    router.push({ name: 'verify-otp' });
   }
+};
+
+const handleBackToLogin = () => {
+  authStore.clearPendingVerification();
+  router.push({ name: 'login' });
 };
 </script>
 
@@ -42,10 +46,13 @@ const handleSendOTP = async () => {
             <img src="@/assets/logo.svg" alt="Logo" class="h-16 w-16 animate-pulse" />
           </div>
           <h2 class="text-3xl font-extrabold bg-gradient-to-r from-night-500 to-night-700 bg-clip-text text-transparent">
-            MyCoaching
+            Vérification
           </h2>
           <p class="mt-2 text-sm text-white">
-            Connectez-vous à votre compte ou inscrivez-vous en rentrant votre email
+            Entrez le code reçu par email
+          </p>
+          <p v-if="authStore.pendingVerification" class="mt-1 text-sm text-white/80">
+            Code envoyé à {{ authStore.pendingVerificationEmail }}
           </p>
         </div>
 
@@ -64,23 +71,20 @@ const handleSendOTP = async () => {
         </div>
 
         <!-- Formulaire -->
-        <form class="px-8 pb-8" @submit.prevent="handleSendOTP">
+        <form class="px-8 pb-8" @submit.prevent="handleVerifyOTP">
           <div class="space-y-6">
-            <div class="">
+            <div>
               <div class="relative">
                 <input
-                  id="email"
-                  v-model="email"
-                  type="email"
+                  id="otp"
+                  v-model="otpCode"
+                  type="text"
                   required
-                  :disabled="authStore.loading"
-                  class="input-primary w-full pl-4 pr-12 py-3 text-base bg-white/50 border-white/20 text-night-900 placeholder-night-600"
-                  placeholder="votre@email.com"
-                  autocomplete="email"
+                  class="input-primary w-full text-center text-2xl tracking-widest py-3 bg-white/50 border-white/20 text-night-900 placeholder-night-600"
+                  placeholder="••••••"
+                  maxlength="6"
+                  autocomplete="one-time-code"
                 />
-                <div class="absolute inset-y-0 right-0 flex items-center pr-4 pointer-events-none">
-                  <span class="text-night-400 text-lg">@</span>
-                </div>
               </div>
             </div>
 
@@ -100,7 +104,7 @@ const handleSendOTP = async () => {
                     class="h-5 w-5 text-white"
                   />
                 </span>
-                {{ authStore.loading ? 'Envoi en cours...' : 'Envoyer le code' }}
+                {{ authStore.loading ? 'Vérification...' : 'Vérifier le code' }}
               </button>
             </div>
           </div>
@@ -108,11 +112,15 @@ const handleSendOTP = async () => {
 
         <!-- Footer -->
         <div class="px-8 py-4 bg-white/20 border-t border-white/20">
-          <p class="text-center text-sm text-white">
-            Un code de vérification sera envoyé à votre adresse email
-          </p>
+          <button
+            type="button"
+            @click="handleBackToLogin"
+            class="w-full text-sm text-white hover:text-white/80 transition-colors"
+          >
+            Retour à la connexion
+          </button>
         </div>
       </div>
     </div>
   </div>
-</template>
+</template> 

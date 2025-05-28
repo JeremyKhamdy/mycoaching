@@ -35,20 +35,6 @@ export const useAccountStore = defineStore('account', () => {
     }
   }
 
-  const createAccount = async (accountData: Partial<Omit<Account, 'id'>>) => {
-    loading.value = true
-    try {
-      // TODO: Replace with actual API call
-      const { data } = await postAccount(accountData)
-      accounts.value.push(data)
-    } catch (error) {
-      console.error('Error creating user:', error)
-      throw error
-    } finally {
-      loading.value = false
-    }
-  }
-
   const updateAccount = async (id: number, userData: Partial<Account>) => {
     loading.value = true
     try {
@@ -96,7 +82,6 @@ export const useAccountStore = defineStore('account', () => {
     loading,
     fetchAccount,
     fetchAccounts,
-    createAccount,
     updateAccount,
     deleteAccount
   }

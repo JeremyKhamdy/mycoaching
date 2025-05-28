@@ -2,7 +2,6 @@
 import { RouterView } from 'vue-router'
 import AuthProvider from './modules/auth/components/AuthProvider.vue';
 import AppLayout from './shared/components/AppLayout.vue';
-import type { User } from '@supabase/supabase-js';
 </script>
 
 <template>

@@ -1,17 +1,25 @@
 <script lang="ts" setup>
 import { RouterLink } from 'vue-router'
+import { 
+  ArrowRightStartOnRectangleIcon,
+  ArrowLeftStartOnRectangleIcon
+} from '@heroicons/vue/24/outline';
 
 defineProps<{
     isSidebarOpen: boolean
 }>()
 
-// const emit = defineEmits<{
-//   (e: 'is-sidebar-open-event', value: boolean): void
-// }>()
+const emit = defineEmits<{
+  (e: 'update:isSidebarOpen', value: boolean): void
+}>()
 
 const navigation = [
   { name: 'Dashboard', to: '/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
+  { name: 'Séances d\'entraînements', to: '/workout', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+  { name: 'Mes exercices', to: '/exercices', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
   { name: 'Comptes utilisateurs', to: '/accounts', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+  { name: 'Mon profil', to: '/profil', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+  { name: 'Paramètres', to: '/settings', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
 ]
 </script>
 
@@ -20,25 +28,13 @@ const navigation = [
     <div class="flex items-center justify-between h-16 px-6">
       <!-- Left side -->
       <div class="flex items-center space-x-4">
-        <!-- <button v-if="!isSidebarOpen"
-        @click="emit('is-sidebar-open-event', !isSidebarOpen)"
-        class="p-2 rounded-2xl text-gray-300 hover:text-orange-400 hover:bg-blue-900/30 focus:outline-none focus:ring-2 focus:ring-blue-800 transition-all duration-200"
+        <button
+        @click="emit('update:isSidebarOpen', !isSidebarOpen)"
+        class="p-2 rounded-2xl text-night-800 focus:outline-none transition-all duration-200"
         >
-        <svg
-          class="h-5 w-5"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M6 18L18 6M6 6l12 12"
-          />
-        </svg>
-      </button> -->
+        <ArrowLeftStartOnRectangleIcon v-if="isSidebarOpen" class=" h-6 w-6"/>
+        <ArrowRightStartOnRectangleIcon v-else  class="h-6 w-6"/>
+      </button>
         <!-- Navigation -->
         <nav class="hidden md:flex items-center space-x-4">
           <RouterLink
@@ -48,7 +44,7 @@ const navigation = [
             class="group flex items-center px-4 py-2 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105"
             :class="[
               $route.path === item.to
-                ? 'bg-gradient-to-r from-blue-900 to-blue-800 text-white shadow-lg shadow-blue-900/30'
+                ? 'bg-gradient-to-r from-night-900 to-night-800 text-white shadow-lg shadow-blue-900/30'
                 : 'text-gray-300 hover:bg-blue-900/30 hover:text-orange-400'
             ]"
           >
