@@ -5,9 +5,9 @@ import AppLayout from './shared/components/AppLayout.vue';
 </script>
 
 <template>
-  <AuthProvider v-slot="{ user }">
-    <AppLayout :user="user">
-      <RouterView />
+  <AuthProvider v-slot="{ user, account }">
+    <AppLayout :user="user" :account="account" >
+      <RouterView :user="user" :account="account"  />
     </AppLayout>
   </AuthProvider>
 </template>

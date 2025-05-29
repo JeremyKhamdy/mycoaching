@@ -16,6 +16,7 @@ export interface Account {
   height: number
   gender: EnumGender | null
   birthday: Date | string
+  phone_number?: string
   createdAt?: string
   updatedAt?: string
   is_active: boolean

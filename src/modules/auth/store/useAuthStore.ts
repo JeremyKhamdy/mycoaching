@@ -36,6 +36,15 @@ export const useAuthStore = defineStore('auth', () => {
       // Mis à jour des states du store
       actualSession.value = session
       user.value = session?.user ?? null
+
+      if (user.value) {
+        // Récupération du compte de l'utilisateur.
+        const { data } = await getAccount(user.value.id)
+        // Mis à jour des states du store
+        account.value = data
+        console.log(account.value)
+      }
+
       loading.value = false
     } catch (e) {
       console.error('Error fetching user:', e)
@@ -43,32 +52,6 @@ export const useAuthStore = defineStore('auth', () => {
         e instanceof Error
           ? e.message
           : "Une erreur est survenue lors de la récupération de l'utilisateur connecté"
-
-      // Affichage du message d'erreur
-      toast.error(`Erreur : ${error.value}`, {
-        position: POSITION.BOTTOM_RIGHT
-      })
-    }
-  }
-
-  // Récupération du compte de l'utilisateur connecté.
-  const getUserAccount = async (userId: string) => {
-    try {
-      // Notifier le store qu'un chargement est en cours.
-      loading.value = true
-
-      // Récupération du compte de l'utilisateur.
-      const { data } = await getAccount(userId)
-
-      // Mis à jour des states du store
-      account.value = data
-      loading.value = false
-    } catch (e) {
-      error.value =
-        e instanceof Error
-          ? e.message
-          : "Une erreur est survenue lors de la récupération du compte de l'utilisateur"
-      console.error(e)
 
       // Affichage du message d'erreur
       toast.error(`Erreur : ${error.value}`, {
@@ -201,7 +184,7 @@ export const useAuthStore = defineStore('auth', () => {
       // Notifier le store que le chargement est fini.
       loading.value = false
       // Affichage du message toast
-      toast.info(`Code vérifié avec succes, bienvenue sur l'application.`, {
+      toast.success(`Code vérifié avec succes, bienvenue sur l'application.`, {
         position: POSITION.BOTTOM_RIGHT
       })
     }
@@ -221,7 +204,6 @@ export const useAuthStore = defineStore('auth', () => {
     pendingVerification,
     pendingVerificationEmail,
     fetchUser,
-    getUserAccount,
     signIn,
     signOut,
     sendOTP,

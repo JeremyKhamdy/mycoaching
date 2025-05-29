@@ -2,23 +2,25 @@
 import { onMounted, ref } from 'vue';
 import SidebarLeftComponent from './sidebar/SidebarLeftComponent.vue';
 import SidebarTopComponent from './sidebar/SidebarTopComponent.vue';
-import { useAccountStore } from '@/modules/accounts/store/useAccountStore';
 import type { User } from '@supabase/supabase-js';
+import type { Account } from '@/modules/accounts/models/Account';
 
-const props = defineProps<{
-  user: User
+defineProps<{
+  user: User,
+  account: Account
 }>()
+
 const isSidebarOpen = ref(true)
-const accountStore = useAccountStore()
 onMounted(async () => {
-  await accountStore.fetchAccount(props.user.id)
+  // await accountStore.fetchAccount(props.user.id)
 })
 </script>
 
 <template>
   <div class="min-h-screen bg-white p-4">
     <!-- Sidebar -->
-    <SidebarLeftComponent 
+    <SidebarLeftComponent
+    :account="account"
     :is-sidebar-open="isSidebarOpen" 
     />
     

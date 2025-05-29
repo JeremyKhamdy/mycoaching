@@ -20,6 +20,12 @@ const router = createRouter({
           name: 'dashboard',
           meta: { requiresAuth: true },
           component: () => import('../shared/views/HomeView.vue')
+        },
+        {
+          path: '/profil',
+          name: 'profil',
+          meta: { requiresAuth: true },
+          component: () => import('../modules/accounts/views/ProfileView.vue')
         }
       ]
     },
@@ -52,10 +58,6 @@ router.beforeEach(async (to, from, next) => {
   // Vérifier l'état de l'authentification si nécessaire
   if (authStore.user === null) {
     await authStore.fetchUser()
-  }
-
-  if (authStore.user && authStore.account === null) {
-    await authStore.getUserAccount(authStore.user.id)
   }
 
   // Gérer les redirections
