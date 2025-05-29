@@ -12,7 +12,7 @@ const searchQuery = ref('');
 const statusFilter = ref('all');
 
 onMounted(() => {
-  if (store.accounts.length === 0) {
+  if (store.accounts?.length === 0) {
     store.fetchAccounts();
   }
 });
@@ -22,17 +22,11 @@ const handleEdit = (account: Account) => {
   showAccountForm.value = true;
 };
 
-const handleDelete = async (accountId: number) => {
-  if (confirm('Êtes-vous sûr de vouloir supprimer cet utilisateur ?')) {
-    await store.deleteAccount(accountId);
-  }
-};
-
-const handleFormSubmit = async (accountData: Partial<Omit<Account, 'id'>>) => {
+const handleFormSubmit = async (accountData: Partial<Account>) => {
   if (editingAccount.value) {
+    console.log('editingAccount',editingAccount.value)
+    console.log('accountData',accountData)
     await store.updateAccount(editingAccount.value.id, accountData);
-  } else {
-    // await store.createAccount(accountData);
   }
   showAccountForm.value = false;
   editingAccount.value = null;
@@ -70,7 +64,6 @@ const handleFormSubmit = async (accountData: Partial<Omit<Account, 'id'>>) => {
         :search-query="searchQuery"
         :status-filter="statusFilter"
         @edit="handleEdit"
-        @delete="handleDelete"
       />
     </div>
   </div>
@@ -81,8 +74,8 @@ const handleFormSubmit = async (accountData: Partial<Omit<Account, 'id'>>) => {
       v-if="showAccountForm"
       class="fixed inset-0 bg-night-900/50 backdrop-blur-sm flex items-center justify-center z-50"
     >
-      <div class="card w-full max-w-md mx-4">
-        <h2 class="text-xl font-bold text-night-900 mb-4">
+      <div class="card w-full max-w-md mx-4 bg-night-900">
+        <h2 class="text-xl font-bold text-white mb-4">
           {{ editingAccount ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}
         </h2>
         <AccountFormComponent

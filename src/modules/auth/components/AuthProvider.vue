@@ -3,11 +3,15 @@ import { onMounted } from 'vue';
 import { useAuthStore } from '../store/useAuthStore';
 import LoginView from '../views/LoginView.vue';
 import VerifyOTPView from '../views/VerifyOTPView.vue';
+import CreateAccountView from '@/modules/accounts/views/CreateAccountView.vue'
 
 const authStore = useAuthStore()
 
 onMounted(async () => {
     await authStore.fetchUser()
+    if (authStore.user) {
+        await authStore.getUserAccount(authStore.user.id)
+    }
 })
 </script>
 
@@ -21,7 +25,8 @@ onMounted(async () => {
         </div>
     </div>
     <template v-else>
-        <slot v-if="authStore.user" :user="authStore.user"></slot>
+        <CreateAccountView :user="authStore.user" v-if="authStore.user && !authStore.account" />
+        <slot v-else-if="authStore.user" :user="authStore.user"></slot>
         <VerifyOTPView v-else-if="authStore.pendingVerification" />
         <LoginView v-else />
     </template>

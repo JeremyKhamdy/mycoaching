@@ -3,11 +3,9 @@ import { ref, computed } from 'vue';
 import { useAccountStore } from '../store/useAccountStore';
 import { 
   PencilSquareIcon,
-  TrashIcon,
-  CheckCircleIcon,
-  XCircleIcon,
-  ClockIcon,
+  CheckIcon
 } from '@heroicons/vue/24/outline';
+import type { Account } from '../models/Account';
 
 const accountsStore = useAccountStore();
 const searchQuery = ref('');
@@ -15,33 +13,19 @@ const searchQuery = ref('');
 const filteredAccounts = computed(() => {
   if (!searchQuery.value) return accountsStore.accounts;
   const query = searchQuery.value.toLowerCase();
-  return accountsStore.accounts.filter(account => 
+  return accountsStore.accounts?.filter(account => 
     account.firstname.toLowerCase().includes(query) ||
     account.lastname.toLowerCase().includes(query) ||
     account.email.toLowerCase().includes(query)
   );
 });
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'active':
-      return {
-        bg: 'bg-green-100',
-        text: 'text-green-800',
-        icon: CheckCircleIcon
-      };
-    case 'inactive':
-      return {
-        bg: 'bg-red-100',
-        text: 'text-red-800',
-        icon: XCircleIcon
-      };
-    default:
-      return {
-        bg: 'bg-yellow-100',
-        text: 'text-yellow-800',
-        icon: ClockIcon
-      };
+const toggleAccountStatus = async (account: Account) => {
+  try {
+    await accountsStore.updateAccount(account.id, { is_active: !account.is_active });
+
+  } catch (error) {
+    console.error('Erreur lors de la mise à jour du statut:', error);
   }
 };
 </script>
@@ -72,6 +56,9 @@ const getStatusColor = (status: string) => {
             <th class="px-6 py-3 text-left text-xs font-medium text-night-500 uppercase tracking-wider">
               Statut
             </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-night-500 uppercase tracking-wider">
+              Admin
+            </th>
             <th class="px-6 py-3 text-right text-xs font-medium text-night-500 uppercase tracking-wider">
               Actions
             </th>
@@ -98,16 +85,30 @@ const getStatusColor = (status: string) => {
               <div class="text-sm text-night-500">{{ account.email }}</div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                :class="[getStatusColor(account.status).bg, getStatusColor(account.status).text]"
-              >
-                <component
-                  :is="getStatusColor(account.status).icon"
-                  class="mr-1.5 h-4 w-4"
-                />
-                {{ account.status }}
-              </span>
+              <div class="flex items-center space-x-3">
+                <button
+                  type="button"
+                  @click="toggleAccountStatus(account)"
+                  class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2"
+                  :class="account.is_active ? 'bg-green-600' : 'bg-red-600'"
+                >
+                  <span
+                    class="pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                    :class="account.is_active ? 'translate-x-5' : 'translate-x-0'"
+                  />
+                </button>
+                <span
+                  class="text-sm"
+                  :class="account.is_active ? 'text-green-600' : 'text-red-600'"
+                >
+                  {{ account.is_active ? 'Actif' : 'Inactif' }}
+                </span>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="text-sm text-center items-center text-green">
+                <component v-if="account.role?.name === 'ROLE_ADMIN'" :is="CheckIcon" class="text-green h-6 w-6"/>
+              </div>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <button
@@ -115,12 +116,6 @@ const getStatusColor = (status: string) => {
                 @click="$emit('edit', account)"
               >
                 <PencilSquareIcon class="h-5 w-5" />
-              </button>
-              <button
-                class="text-red-600 hover:text-red-900"
-                @click="$emit('delete', account)"
-              >
-                <TrashIcon class="h-5 w-5" />
               </button>
             </td>
           </tr>
