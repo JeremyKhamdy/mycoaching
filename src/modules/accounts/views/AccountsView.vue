@@ -4,7 +4,9 @@ import { useAccountStore } from '../store/useAccountStore';
 import AccountsListComponent from '../components/AccountsListComponent.vue';
 import AccountFormComponent from '../components/AccountFormComponent.vue';
 import type { Account } from '../models/Account';
+import { useToast } from 'vue-toastification';
 
+const toast = useToast();
 const store = useAccountStore();
 const showAccountForm = ref(false);
 const editingAccount = ref<Account | null>(null);
@@ -31,6 +33,9 @@ const handleFormSubmit = async (accountData: Partial<Account>) => {
   showAccountForm.value = false;
   editingAccount.value = null;
 };
+
+const triggerToastNotification = () => {
+}
 </script>
 
 <template>
