@@ -1,5 +1,6 @@
 import type { UUID } from 'crypto'
 import type { Health } from './Health'
+import type { Role } from './Role'
 
 export enum EnumGender {
   male = 'male',
@@ -17,5 +18,7 @@ export interface Account {
   birthday: Date | string
   createdAt?: string
   updatedAt?: string
+  is_active: boolean
   health: Health
+  role: Role
 }

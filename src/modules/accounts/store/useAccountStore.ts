@@ -5,9 +5,9 @@ import type { Account } from '../models/Account'
 
 export const useAccountStore = defineStore('account', () => {
   const account = ref<Account | null>(null)
-  const accounts = ref<Account[]>([])
+  const accounts = ref<Account[] | null>([])
   const loading = ref(false)
-  const { getAccount, getAccounts, postAccount } = useAccountService()
+  const { getAccount, getAccounts, postAccount, patchAccount } = useAccountService()
 
   const fetchAccount = async (userId: string) => {
     loading.value = true
@@ -27,7 +27,7 @@ export const useAccountStore = defineStore('account', () => {
     loading.value = true
     try {
       const { data } = await getAccounts()
-      accounts.value = data as Account[]
+      accounts.value = data
     } catch (error) {
       console.error('Error fetching accounts:', error)
     } finally {
@@ -35,42 +35,31 @@ export const useAccountStore = defineStore('account', () => {
     }
   }
 
-  const updateAccount = async (id: number, userData: Partial<Account>) => {
+  const createAccount = async (accountData: Partial<Account>, email: string, userId: string) => {
     loading.value = true
     try {
-      // TODO: Replace with actual API call
-      const response = await fetch(`/api/users/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(userData)
-      })
-      const updatedAccount = await response.json()
-      const index = accounts.value.findIndex((account) => account.id === id)
-      if (index !== -1) {
-        accounts.value[index] = updatedAccount
-      }
-      return updatedAccount
+      const { data } = await postAccount(accountData, email, userId)
+      account.value = data
     } catch (error) {
-      console.error('Error updating account:', error)
-      throw error
+      console.error('Error fetching accounts:', error)
     } finally {
       loading.value = false
     }
   }
 
-  const deleteAccount = async (id: number) => {
+  const updateAccount = async (accountId: number, accountData: Partial<Account>) => {
     loading.value = true
+
     try {
-      // TODO: Replace with actual API call
-      await fetch(`/api/users/${id}`, {
-        method: 'DELETE'
-      })
-      accounts.value = accounts.value.filter((account) => account.id !== id)
+      const { data } = await patchAccount(accountId, accountData)
+      if (accounts.value) {
+        const index = accounts.value?.findIndex((a) => a.id === accountId)
+        if (index !== -1) {
+          accounts.value[index] = data as Account
+        }
+      }
     } catch (error) {
-      console.error('Error deleting account:', error)
-      throw error
+      console.error('Error fetching accounts:', error)
     } finally {
       loading.value = false
     }
@@ -82,7 +71,7 @@ export const useAccountStore = defineStore('account', () => {
     loading,
     fetchAccount,
     fetchAccounts,
-    updateAccount,
-    deleteAccount
+    createAccount,
+    updateAccount
   }
 })

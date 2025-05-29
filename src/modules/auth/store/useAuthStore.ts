@@ -1,3 +1,5 @@
+import type { Account } from '@/modules/accounts/models/Account'
+import { useAccountService } from '@/modules/accounts/services/useAccountService'
 import { supabase } from '@/shared/services/supabaseClient'
 import type { Session, User } from '@supabase/supabase-js'
 import { defineStore } from 'pinia'
@@ -5,11 +7,14 @@ import { ref } from 'vue'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<User | null>(null)
+  const account = ref<Account | null>(null)
   const actualSession = ref<Session | null>(null)
   const loading = ref(false)
   const error = ref<string | null>(null)
   const pendingVerification = ref<boolean>(false)
   const pendingVerificationEmail = ref<string>('')
+
+  const { getAccount } = useAccountService()
 
   const fetchUser = async () => {
     console.log('Fetching user...')
@@ -31,6 +36,18 @@ export const useAuthStore = defineStore('auth', () => {
         e instanceof Error
           ? e.message
           : "Une erreur est survenue lors de la récupération de l'utilisateur"
+    }
+  }
+
+  const getUserAccount = async (userId: string) => {
+    try {
+      loading.value = true
+      const { data } = await getAccount(userId)
+      account.value = data
+      loading.value = false
+    } catch (e) {
+      error.value = "Erreur lors de la récupération de l'utilisateur"
+      console.error(e)
     }
   }
 
@@ -63,21 +80,6 @@ export const useAuthStore = defineStore('auth', () => {
     user.value = null
     pendingVerification.value = false
     pendingVerificationEmail.value = ''
-  }
-
-  const initUser = async () => {
-    try {
-      loading.value = true
-      const {
-        data: { user: currentUser }
-      } = await supabase.auth.getUser()
-      user.value = currentUser
-    } catch (e) {
-      error.value = "Erreur lors de la récupération de l'utilisateur"
-      console.error(e)
-    } finally {
-      loading.value = false
-    }
   }
 
   const sendOTP = async (email: string) => {
@@ -135,15 +137,16 @@ export const useAuthStore = defineStore('auth', () => {
 
   return {
     user,
+    account,
     actualSession,
     loading,
     error,
     pendingVerification,
     pendingVerificationEmail,
     fetchUser,
+    getUserAccount,
     signIn,
     signOut,
-    initUser,
     sendOTP,
     verifyOTP,
     clearPendingVerification

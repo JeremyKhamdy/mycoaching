@@ -3,36 +3,52 @@ import type { Account } from '../models/Account'
 import type { PostgrestResponse, PostgrestSingleResponse } from '@supabase/supabase-js'
 
 export function useAccountService() {
-  async function getAccount(userId: string): Promise<PostgrestSingleResponse<Account>> {
+  async function getAccount(userId: string): Promise<PostgrestSingleResponse<Account | null>> {
     return await supabase
       .from('account')
       .select(
-        '*, health(id, height, weight, target_weight, target_training, measure_weight), training_objectives(training_per_week)'
+        '*, health(id, height, weight, target_weight, target_training, measure_weight), training_objectives(training_per_week), role(name)'
       )
       .eq('user_id', userId)
-      .single()
+      .maybeSingle()
   }
 
-  async function getAccounts() {
-    return await supabase.from('account').select()
+  async function getAccounts(): Promise<PostgrestResponse<Account>> {
+    return await supabase
+      .from('account')
+      .select(
+        '*, health(id, height, weight, target_weight, target_training, measure_weight), training_objectives(training_per_week), role(name)'
+      )
   }
 
   async function postAccount(
-    account: Partial<Omit<Account, 'password'>>
-  ): Promise<PostgrestResponse<Account>> {
+    account: Partial<Omit<Account, 'password'>>,
+    email: string,
+    userId: string
+  ): Promise<PostgrestSingleResponse<Account>> {
     const newAccount = {
       firstname: account.firstname,
       lastname: account.lastname,
       birthday: account.birthday,
-      email: account.email,
-      gender: account.gender
+      email: email,
+      gender: account.gender,
+      user_id: userId,
+      role_id: 1
     }
-    return await supabase.from('account').insert(newAccount).select()
+    return await supabase.from('account').insert(newAccount).select().single()
+  }
+
+  async function patchAccount(
+    accountId: number,
+    account: Partial<Account>
+  ): Promise<PostgrestSingleResponse<Account | null>> {
+    return await supabase.from('account').update(account).eq('id', accountId).select().single()
   }
 
   return {
     getAccount,
     getAccounts,
-    postAccount
+    postAccount,
+    patchAccount
   }
 }
