@@ -35,14 +35,27 @@ export function useAccountService() {
       user_id: userId,
       role_id: 1
     }
-    return await supabase.from('account').insert(newAccount).select().single()
+    return await supabase
+      .from('account')
+      .insert(newAccount)
+      .select(
+        '*, health(id, height, weight, target_weight, target_training, measure_weight), training_objectives(training_per_week), role(name)'
+      )
+      .single()
   }
 
   async function patchAccount(
     accountId: number,
     account: Partial<Account>
   ): Promise<PostgrestSingleResponse<Account | null>> {
-    return await supabase.from('account').update(account).eq('id', accountId).select().single()
+    return await supabase
+      .from('account')
+      .update(account)
+      .eq('id', accountId)
+      .select(
+        '*, health(id, height, weight, target_weight, target_training, measure_weight), training_objectives(training_per_week), role(name)'
+      )
+      .single()
   }
 
   return {

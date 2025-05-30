@@ -4,76 +4,140 @@ import {
   ArrowRightStartOnRectangleIcon,
   ArrowLeftStartOnRectangleIcon
 } from '@heroicons/vue/24/outline';
+import { useAccountStore } from '@/modules/accounts/store/useAccountStore';
+import { computed, onUnmounted, ref, watch } from 'vue';
+import { useAuthStore } from '@/modules/auth/store/useAuthStore';
 
-defineProps<{
-    isSidebarOpen: boolean
+const props = defineProps<{
+    isSidebarOpen: boolean;
+    isMobileMenuOpen: boolean;
 }>()
 
 const emit = defineEmits<{
   (e: 'update:isSidebarOpen', value: boolean): void
+  (e: 'update:isMobileMenuOpen', value: boolean): void
 }>()
 
+// Gestion du scroll du body
+watch(() => props.isSidebarOpen, (isOpen) => {
+  if (isOpen) {
+    document.body.classList.add('overflow-hidden');
+  } else {
+    document.body.classList.remove('overflow-hidden');
+  }
+});
+
+// Nettoyage lors de la destruction du composant
+onUnmounted(() => {
+  document.body.classList.remove('overflow-hidden');
+});
+
+const authStore = useAuthStore();
+
+const isAdmin = computed(() => authStore.isAdmin());
+
 const navigation = [
-  { name: 'Dashboard', to: '/dashboard', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6' },
-  { name: 'Séances d\'entraînements', to: '/workout', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-  { name: 'Mes exercices', to: '/exercices', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-  { name: 'Comptes utilisateurs', to: '/accounts', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-  { name: 'Mon profil', to: '/profil', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
-  { name: 'Paramètres', to: '/settings', icon: 'M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' },
+  { name: 'Dashboard', to: '/dashboard' },
+  { name: 'Séances d\'entraînements', to: '/workout'},
+  { name: 'Mes exercices', to: '/exercices' },
+  { name: 'Comptes utilisateurs', to: '/accounts', adminOnly: true },
+  { name: 'Mon profil', to: '/profil' },
+  { name: 'Paramètres', to: '/settings', adminOnly: true },
 ]
+
+const filteredNavigation = computed(() => {
+  return navigation.filter(item => !item.adminOnly || isAdmin.value);
+});
 </script>
 
 <template>
-  <div class="sticky top-0 z-40 bg-white py-4">
-    <div class="flex items-center justify-between h-16 px-6">
+  <div class="sticky top-0 z-40 bg-white py-4 h-16">
+    <div class="flex items-center justify-between h-full px-6">
       <!-- Left side -->
-      <div class="flex items-center space-x-4">
+      <div class="flex items-center space-x-4 pr-6 flex-1 min-w-0">
         <button
-        @click="emit('update:isSidebarOpen', !isSidebarOpen)"
-        class="p-2 rounded-2xl text-night-800 focus:outline-none transition-all duration-200"
+          @click="emit('update:isSidebarOpen', !isSidebarOpen)"
+          class="p-2 rounded-2xl text-night-800 focus:outline-none transition-all duration-200 flex-shrink-0"
         >
-        <ArrowLeftStartOnRectangleIcon v-if="isSidebarOpen" class=" h-6 w-6"/>
-        <ArrowRightStartOnRectangleIcon v-else  class="h-6 w-6"/>
-      </button>
-        <!-- Navigation -->
-        <nav class="hidden md:flex items-center space-x-4">
-          <RouterLink
-            v-for="item in navigation"
-            :key="item.name"
-            :to="item.to"
-            class="group flex items-center px-4 py-2 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105"
-            :class="[
-              $route.path === item.to
-                ? 'bg-gradient-to-r from-night-900 to-night-800 text-white shadow-lg shadow-blue-900/30'
-                : 'text-gray-300 hover:bg-blue-900/30 hover:text-orange-400'
-            ]"
-          >
-            <!-- <svg
-              class="mr-2 h-5 w-5 transition-transform duration-200 group-hover:scale-110"
+          <ArrowLeftStartOnRectangleIcon v-if="isSidebarOpen" class="h-6 w-6"/>
+          <ArrowRightStartOnRectangleIcon v-else class="h-6 w-6"/>
+        </button>
+        <!-- Navigation Desktop -->
+        <div class="hidden md:block flex-1 min-w-0">
+          <nav class="flex items-center space-x-4">
+            <RouterLink
+              v-for="item in filteredNavigation"
+              :key="item.name"
+              :to="item.to"
+              class="group flex items-center px-2 py-2 text-sm font-medium transition-all duration-200 hover:scale-105 truncate"
               :class="[
                 $route.path === item.to
-                  ? 'text-white'
-                  : 'text-gray-400 group-hover:text-orange-400'
+                  ? 'text-night-900 border-b border-night-900'
+                  : 'text-gray-300  hover:text-orange-400'
               ]"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
             >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                :d="item.icon"
-              />
-            </svg> -->
-            {{ item.name }}
-          </RouterLink>
-        </nav>
+              {{ item.name }}
+            </RouterLink>
+          </nav>
+        </div>
+        <!-- Menu Mobile Button -->
+        <button
+          @click="emit('update:isMobileMenuOpen', !isMobileMenuOpen)"
+          class="md:hidden p-2 rounded-2xl text-night-800 focus:outline-none transition-all duration-200"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+          </svg>
+        </button>
       </div>
 
-      <!-- Right side -->
-      <div class="flex items-center space-x-4">
+      <!-- Right side - Fixed position -->
+      <div class="flex-shrink-0 ml-6">
+        <button
+          @click="authStore.signOut()"
+          class="flex items-center px-4 py-2 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105 text-red-900/30 hover:text-red-400 whitespace-nowrap min-w-[140px] justify-center"
+        >
+          <ArrowRightStartOnRectangleIcon class="h-5 w-5 mr-2 flex-shrink-0" />
+          <span class="flex-shrink-0">Se déconnecter</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Navigation Menu -->
+    <div
+      v-if="isMobileMenuOpen"
+      class="fixed inset-0 bg-white z-50 md:hidden"
+    >
+      <div class="flex flex-col h-full">
+        <div class="flex items-center justify-between p-4 border-b border-gray-200">
+          <h2 class="text-xl font-semibold text-night-900">Menu</h2>
+          <button
+            @click="emit('update:isMobileMenuOpen', false)"
+            class="p-2 rounded-2xl text-night-800 focus:outline-none"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <nav class="flex-1 p-4">
+          <div class="space-y-2">
+            <RouterLink
+              v-for="item in filteredNavigation"
+              :key="item.name"
+              :to="item.to"
+              @click="emit('update:isMobileMenuOpen', false)"
+              class="block px-4 py-3 text-base font-medium rounded-xl transition-all duration-200"
+              :class="[
+                $route.path === item.to
+                  ? 'bg-night-900 text-white'
+                  : 'text-gray-600 hover:bg-gray-100'
+              ]"
+            >
+              {{ item.name }}
+            </RouterLink>
+          </div>
+        </nav>
       </div>
     </div>
   </div>

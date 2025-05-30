@@ -22,6 +22,11 @@ export const useAuthStore = defineStore('auth', () => {
   // Récupération des methodes du service en lien pour les getters et actions
   const { getAccount } = useAccountService()
 
+  // Verfie si l'utilisateur est un admin
+  const isAdmin = () => {
+    return account.value?.role?.name === 'ROLE_ADMIN' ?? false
+  }
+
   // Récupération de l'utilisateur connecté et de sa session.
   const fetchUser = async () => {
     console.log('Fetching user...')
@@ -30,9 +35,11 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       // Récupération de la session de l'utilisateur et de ses informations.
       const {
-        data: { session }
+        data: { session },
+        error
       } = await supabase.auth.getSession()
 
+      if (error) throw new Error(error.message)
       // Mis à jour des states du store
       actualSession.value = session
       user.value = session?.user ?? null
@@ -42,7 +49,6 @@ export const useAuthStore = defineStore('auth', () => {
         const { data } = await getAccount(user.value.id)
         // Mis à jour des states du store
         account.value = data
-        console.log(account.value)
       }
 
       loading.value = false
@@ -78,21 +84,21 @@ export const useAuthStore = defineStore('auth', () => {
       // Mis à jour des states du store.
       actualSession.value = data.session
       user.value = data.user
-      return data
-    } catch (e) {
-      error.value = e instanceof Error ? e.message : 'Une erreur est survenue lors de la connexion'
-      // Affichage du message d'erreur
-      toast.error(`Erreur : ${error.value}`, {
-        position: POSITION.BOTTOM_RIGHT
-      })
-      throw e
-    } finally {
-      // Notifier le store que le chargement est fini.
-      loading.value = false
+
       // Affichage du message toast
       toast.info(`Bienvenue sur l'application.`, {
         position: POSITION.BOTTOM_RIGHT
       })
+      return data
+    } catch (e: any) {
+      error.value = e.message || 'Une erreur est survenue lors de la connexion'
+      // Affichage du message d'erreur
+      toast.error(`Erreur : ${error.value}`, {
+        position: POSITION.BOTTOM_RIGHT
+      })
+    } finally {
+      // Notifier le store que le chargement est fini.
+      loading.value = false
     }
   }
 
@@ -131,21 +137,20 @@ export const useAuthStore = defineStore('auth', () => {
       // Mis à jour des states du store pour la verification du code.
       pendingVerification.value = true
       pendingVerificationEmail.value = email
+
+      // Affichage du message toast.
+      toast.info(`Un email avec le code de vérification vous à été envoyé.`, {
+        position: POSITION.BOTTOM_RIGHT
+      })
     } catch (e: any) {
       error.value = e.message || "Erreur lors de l'envoi du code OTP"
       // Affichage du message d'erreur toast.
       toast.error(`Erreur : ${error.value}`, {
         position: POSITION.BOTTOM_RIGHT
       })
-      throw e
     } finally {
       // Notifier le store que le chargement est fini.
       loading.value = false
-
-      // Affichage du message toast.
-      toast.info(`Un email avec le code de vérification vous à été envoyé.`, {
-        position: POSITION.BOTTOM_RIGHT
-      })
     }
   }
 
@@ -173,20 +178,20 @@ export const useAuthStore = defineStore('auth', () => {
       actualSession.value = data.session
       pendingVerification.value = false
       pendingVerificationEmail.value = ''
+
+      // Affichage du message toast
+      toast.success(`Code vérifié avec succes, bienvenue sur l'application.`, {
+        position: POSITION.BOTTOM_RIGHT
+      })
     } catch (e: any) {
       error.value = e.message || 'Erreur lors de la vérification du code OTP'
       // Affichage du message d'erreur toast.
       toast.error(`Erreur : ${error.value}`, {
         position: POSITION.BOTTOM_RIGHT
       })
-      throw e
     } finally {
       // Notifier le store que le chargement est fini.
       loading.value = false
-      // Affichage du message toast
-      toast.success(`Code vérifié avec succes, bienvenue sur l'application.`, {
-        position: POSITION.BOTTOM_RIGHT
-      })
     }
   }
 
@@ -203,6 +208,7 @@ export const useAuthStore = defineStore('auth', () => {
     error,
     pendingVerification,
     pendingVerificationEmail,
+    isAdmin,
     fetchUser,
     signIn,
     signOut,

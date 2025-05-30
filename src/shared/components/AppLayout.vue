@@ -11,30 +11,37 @@ defineProps<{
 }>()
 
 const isSidebarOpen = ref(true)
+const isMobileMenuOpen = ref(false)
+
 onMounted(async () => {
   // await accountStore.fetchAccount(props.user.id)
 })
 </script>
 
 <template>
-  <div class="min-h-screen bg-white p-4">
+  <div class="min-h-screen bg-white md:p-4">
     <!-- Sidebar -->
     <SidebarLeftComponent
     :account="account"
     :is-sidebar-open="isSidebarOpen" 
+    @update:isSidebarOpen="(event) => isSidebarOpen = event"
+
     />
     
     <!-- Main Content -->
     <div
       :class="[
         'transition-all duration-300 ease-in-out',
-        isSidebarOpen ? 'ml-72' : 'ml-0'
+        isSidebarOpen ? 'lg:ml-72' : 'ml-0',
+        isMobileMenuOpen ? 'h-screen overflow-hidden' : '',
       ]"
     >
       <!-- Top Navigation -->
       <SidebarTopComponent 
       :is-sidebar-open="isSidebarOpen" 
+      :is-mobile-menu-open="isMobileMenuOpen"
       @update:isSidebarOpen="(event) => isSidebarOpen = event"
+      @update:isMobileMenuOpen="(event) => isMobileMenuOpen = event"
       />
 
       <!-- Page Content -->
