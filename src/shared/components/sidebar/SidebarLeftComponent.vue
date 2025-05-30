@@ -43,10 +43,10 @@ const handleLogout = async () => {
 
     <!-- User Profile -->
     <div class="p-6 border-b border-blue-900/20">
-      <div class="flex items-center space-x-4">
+      <div class="flex flex-col items-center space-y-4">
         <img
-          class="h-16 w-16 rounded-full ring-4 ring-blue-800"
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+          class="h-32 w-32 rounded-full ring-4 ring-blue-800 object-cover"
+          src="https://images.unsplash.com/photo-1633008692730-ff6cdbdb7621?q=80&w=2160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
         />
         <div>

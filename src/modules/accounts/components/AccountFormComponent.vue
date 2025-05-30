@@ -15,6 +15,7 @@ const formData = ref<Partial<Account>>({
     firstname: '',
     lastname: '',
     birthday: '',
+    phone_number: '',
     gender: null,
     is_active: undefined
 });
@@ -88,6 +89,19 @@ const handleSubmit = () => {
               <option value="female">Femme</option>
             </select>
           </div>
+        </div>
+      </div>
+
+      <div class="col-span-2 space-y-3">
+        <div>
+          <label for="phone_number" class="block text-sm font-medium text-white">Numero de téléphone</label>
+          <input
+            id="phone_number"
+            v-model="formData.phone_number"
+            type="text"
+            required
+            class="mt-1 block w-full px-3 py-2 bg-white/50 border-white/20 rounded-xl text-night-900 placeholder-night-600 focus:outline-none focus:ring-2 focus:ring-night-500 focus:border-transparent"
+          />
         </div>
       </div>
     </div>
