@@ -2,14 +2,22 @@
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/modules/auth/store/useAuthStore'
 import type { Account } from '@/modules/accounts/models/Account';
+import { UserIcon } from '@heroicons/vue/24/solid';
+import { computed } from 'vue';
+import { calculateAge } from '@/shared/utils/CalculateAgeFromDate';
 
 const router = useRouter()
 const authStore = useAuthStore()
 
-defineProps<{
+const props = defineProps<{
     isSidebarOpen: boolean,
     account: Account
 }>();
+
+const userAge = computed(() => {
+  if (!props.account.birthday) return 'Non renseigné';
+  return `${calculateAge(props.account.birthday)} ans`;
+});
 
 const handleLogout = async () => {
   try {
@@ -49,9 +57,16 @@ const handleLogout = async () => {
           src="https://images.unsplash.com/photo-1633008692730-ff6cdbdb7621?q=80&w=2160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
         />
-        <div>
+        <div class="text-center">
           <h2 class="text-lg font-semibold text-gray-200">{{account.firstname}} {{account.lastname}}</h2>
           <p class="text-sm text-gray-400">{{account.email}}</p>
+        </div>
+        <div class="flex flex-row space-x-2">
+            <UserIcon class="w-6 h-6" :class="{
+              'text-blue-500' : account.gender === 'male',
+              'text-pink-500' : account.gender === 'female',
+            }"/>
+            <p class="text-sm text-gray-400">{{ userAge }}</p>
         </div>
       </div>
     </div>
@@ -60,39 +75,49 @@ const handleLogout = async () => {
     <div class="p-6 space-y-4">
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-blue-900/30 rounded-2xl p-4">
-          <p class="text-sm text-gray-400">Sessions</p>
-          <p class="text-2xl font-semibold text-blue-400">12</p>
+          <p class="text-sm text-gray-400">Poids actuel</p>
+          <p class="text-2xl font-semibold text-blue-400">{{ account.health?.weight || '-' }} kg</p>
         </div>
         <div class="bg-orange-900/20 rounded-2xl p-4">
-          <p class="text-sm text-gray-400">Objectifs</p>
-          <p class="text-2xl font-semibold text-orange-400">3</p>
+          <p class="text-sm text-gray-400">Objectif</p>
+          <p class="text-2xl font-semibold text-orange-400">{{ account.health?.target_weight || '-' }} kg</p>
+        </div>
+        <div class="bg-green-900/20 rounded-2xl p-4">
+          <p class="text-sm text-gray-400">Différence</p>
+          <p class="text-2xl font-semibold text-green-400">
+            {{ account.health?.weight && account.health?.target_weight 
+              ? (account.health.target_weight - account.health.weight).toFixed(1) 
+              : '-' }} kg
+          </p>
+        </div>
+        <div class="bg-purple-900/20 rounded-2xl p-4">
+          <p class="text-sm text-gray-400">IMC</p>
+          <p class="text-2xl font-semibold text-purple-400">
+            {{ account.health?.weight && account.health?.height 
+              ? ((account.health.weight / ((account.health.height / 100) ** 2))).toFixed(1)
+              : '-' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training Stats -->
+    <div class="p-6 space-y-4">
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-blue-900/30 rounded-2xl p-4">
+          <p class="text-sm text-gray-400">Séances cette semaine</p>
+          <p class="text-2xl font-semibold text-blue-400">{{ account.objectives?.training_per_week || 0 }}</p>
+        </div>
+        <div class="bg-orange-900/20 rounded-2xl p-4">
+          <p class="text-sm text-gray-400">Objectif hebdo</p>
+          <p class="text-2xl font-semibold text-orange-400">{{ account.health?.target_training || 0 }}</p>
         </div>
       </div>
     </div>
 
     <!-- User Menu -->
     <div class="p-6 space-y-4">
-      <!-- Bouton de déconnexion -->
-      <button
-        @click="handleLogout"
-        class="w-full flex items-center px-4 py-3 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105 text-gray-300 hover:bg-red-900/30 hover:text-red-400"
-      >
-        <svg
-          class="mr-3 h-5 w-5 transition-transform duration-200 group-hover:scale-110 text-gray-400 group-hover:text-red-400"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-          />
-        </svg>
-        Se déconnecter
-      </button>
+      <!-- Suppression du bouton de déconnexion qui a été déplacé -->
     </div>
   </aside>
 </template>
