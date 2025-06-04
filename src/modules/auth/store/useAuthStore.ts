@@ -54,8 +54,6 @@ export const useAuthStore = defineStore('auth', () => {
           // Mis à jour des states du store
           account.value = data
         }
-
-        loadingSession.value = false
       } catch (e) {
         console.error('Error fetching user:', e)
         error.value =
@@ -67,6 +65,8 @@ export const useAuthStore = defineStore('auth', () => {
         toast.error(`Erreur : ${error.value}`, {
           position: POSITION.BOTTOM_RIGHT
         })
+      } finally {
+        loadingSession.value = false
       }
     } else {
       loadingSession.value = false
