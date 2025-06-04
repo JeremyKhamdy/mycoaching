@@ -1,38 +1,46 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import SidebarLeftComponent from './sidebar/SidebarLeftComponent.vue';
 import SidebarTopComponent from './sidebar/SidebarTopComponent.vue';
-import { useAccountStore } from '@/modules/accounts/store/useAccountStore';
 import type { User } from '@supabase/supabase-js';
+import type { Account } from '@/modules/accounts/models/Account';
 
-const props = defineProps<{
-  user: User
+defineProps<{
+  user: User,
+  account: Account
 }>()
+
 const isSidebarOpen = ref(true)
-const accountStore = useAccountStore()
-onMounted(async () => {
-  await accountStore.fetchAccount(props.user.id)
-})
+const isMobileMenuOpen = ref(false)
+const isSidebarMobileOpen = ref(false)
+
+
 </script>
 
 <template>
-  <div class="min-h-screen bg-white p-4">
+  <div class="min-h-screen bg-white">
     <!-- Sidebar -->
-    <SidebarLeftComponent 
+    <SidebarLeftComponent
+    :account="account"
     :is-sidebar-open="isSidebarOpen" 
+    @update:isSidebarOpen="(event) => isSidebarMobileOpen = event"
+
     />
     
     <!-- Main Content -->
     <div
       :class="[
         'transition-all duration-300 ease-in-out',
-        isSidebarOpen ? 'ml-72' : 'ml-0'
+        isSidebarOpen ? 'lg:ml-72' : 'ml-0',
+        isMobileMenuOpen ? 'h-screen overflow-hidden' : '',
       ]"
     >
       <!-- Top Navigation -->
       <SidebarTopComponent 
       :is-sidebar-open="isSidebarOpen" 
+      :is-mobile-menu-open="isMobileMenuOpen"
       @update:isSidebarOpen="(event) => isSidebarOpen = event"
+      @update:isMobileMenuOpen="(event) => isMobileMenuOpen = event"
       />
 
       <!-- Page Content -->

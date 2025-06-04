@@ -24,10 +24,12 @@ WORKDIR /app
 
 ## Copy the package.json file (package.json et package-lock.json)
 COPY package*.json ./
-#
+COPY vite.config.ts ./
+COPY tsconfig*.json ./
+
 ## Install dependencies
 RUN npm install
-#
+
 ## Copie du reste des fichiers du projet
 COPY . .
 

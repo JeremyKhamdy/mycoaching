@@ -3,6 +3,8 @@ import { accountsRoute } from '@/modules/accounts/router/route'
 import { useAuthStore } from '@/modules/auth/store/useAuthStore'
 import LoginView from '@/modules/auth/views/LoginView.vue'
 import VerifyOTPView from '@/modules/auth/views/VerifyOTPView.vue'
+import CreateAccountView from '@/modules/accounts/views/CreateAccountView.vue'
+import { workoutRoute } from '@/modules/workout/router/route'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -14,11 +16,18 @@ const router = createRouter({
       // component: () => import('../shared/views/HomeView.vue'),
       children: [
         accountsRoute,
+        workoutRoute,
         {
           path: '/dashboard',
           name: 'dashboard',
           meta: { requiresAuth: true },
           component: () => import('../shared/views/HomeView.vue')
+        },
+        {
+          path: '/profil',
+          name: 'profil',
+          meta: { requiresAuth: true },
+          component: () => import('../modules/accounts/views/ProfileView.vue')
         }
       ]
     },
@@ -33,6 +42,12 @@ const router = createRouter({
       name: 'verify-otp',
       meta: { requiresAuth: false },
       component: VerifyOTPView
+    },
+    {
+      path: '/create-account',
+      name: 'create-account',
+      meta: { requiresAuth: true },
+      component: CreateAccountView
     }
   ]
 })
@@ -46,28 +61,24 @@ router.beforeEach(async (to, from, next) => {
   if (authStore.user === null) {
     await authStore.fetchUser()
   }
-  console.log(authStore.pendingVerification)
+
   // Gérer les redirections
   if (requiresAuth && !authStore.user) {
-    console.log('need login')
-
     // Rediriger vers la page de connexion si l'utilisateur n'est pas authentifié
-    next({
-      name: 'login'
-      // query: { redirect: to.fullPath }
-    })
+    next({ name: 'login' })
+  } else if (requiresAuth && authStore.user && !authStore.account) {
+    // Rediriger vers la page de création de compte si l'utilisateur connecté n'a pas de compte
+    next({ name: 'create-account' })
   } else if ((requiresAuth || to.name === 'login') && authStore.pendingVerification) {
-    console.log('otp route')
+    // Rediriger vers la page de verification OTP si une vérification est en attente
     next({ name: 'verify-otp' })
   } else if (to.name === 'verify-otp' && !authStore.pendingVerification) {
-    console.log('ici')
     // Rediriger vers la page home si aucune vérification n'est en attente
     next({ name: 'dashboard' })
   } else if (to.name === 'login' && authStore.user) {
     // Rediriger vers la page d'accueil si l'utilisateur est déjà connecté
     next({ name: 'dashboard' })
   } else {
-    console.log('next')
     next()
   }
 })

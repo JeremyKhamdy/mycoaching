@@ -1,192 +1,169 @@
 # MyCoaching
 
-Application de coaching moderne et intuitive, construite avec Vue 3, TypeScript et Tailwind CSS.
+Application de coaching sportif permettant aux utilisateurs de suivre leur progression et leurs objectifs.
 
 ## 🚀 Technologies
 
 - Vue 3 avec Composition API
 - TypeScript
-- Tailwind CSS
 - Pinia pour la gestion d'état
-- Vue Router
-- Vite
-- Docker
+- Supabase pour le backend
+- TailwindCSS pour le styling
+- Vitest pour les tests unitaires
 - Cypress pour les tests E2E
 
-## 📁 Structure du Projet
+## 📋 Prérequis
 
-```
-src/
-├── assets/                 # Ressources statiques
-├── modules/               # Modules de l'application
-│   ├── users/            # Module de gestion des utilisateurs
-│   │   ├── components/   # Composants spécifiques au module
-│   │   │   ├── UserFormComponent.vue
-│   │   │   ├── UsersFilterComponent.vue
-│   │   │   └── UsersListComponent.vue
-│   │   ├── models/       # Types et interfaces
-│   │   │   └── User.ts
-│   │   ├── services/     # Services API
-│   │   │   └── useUserService.ts
-│   │   ├── store/        # Store Pinia
-│   │   │   └── useUserStore.ts
-│   │   └── views/        # Vues du module
-│   │       └── UsersView.vue
-│   └── ...               # Autres modules
-├── shared/               # Composants et utilitaires partagés
-│   ├── components/       # Composants réutilisables
-│   │   └── sidebar/      # Composants de navigation
-│   │       ├── SidebarMenuLeftComponent.vue
-│   │       └── SidebarTopComponent.vue
-│   └── types/           # Types globaux
-├── App.vue              # Composant racine
-└── main.ts             # Point d'entrée
-```
-
-## 🎨 Fonctionnalités
-
-### Module Utilisateurs
-
-- **Gestion des utilisateurs**
-
-  - Liste des utilisateurs avec pagination
-  - Filtrage par nom et statut
-  - Création, modification et suppression d'utilisateurs
-  - Interface moderne avec effets de verre (glass effect)
-
-- **Composants**
-  - `UsersListComponent` : Affichage et gestion de la liste des utilisateurs
-  - `UsersFilterComponent` : Filtres de recherche et de statut
-  - `UserFormComponent` : Formulaire de création/modification d'utilisateur
-
-### Navigation
-
-- **Sidebar**
-
-  - Menu latéral rétractable
-  - Navigation intuitive
-  - Design moderne avec effets de survol
-
-- **Barre supérieure**
-  - Recherche globale
-  - Notifications
-  - Menu utilisateur
+- Node.js 20+
+- npm 9+
 
 ## 🛠 Installation
 
-### Prérequis
-
-- Node.js (v16 ou supérieur)
-- Docker et Docker Compose (optionnel)
-
-### Installation locale
+1. Cloner le repository
 
 ```bash
-# Installation des dépendances
+git clone https://github.com/votre-username/mycoaching.git
+cd mycoaching
+```
+
+2. Installer les dépendances
+
+```bash
 npm install
+```
 
-# Démarrage du serveur de développement
+3. Configurer les variables d'environnement
+
+```bash
+cp .env.example .env
+```
+
+Remplir les variables dans le fichier `.env` avec vos propres valeurs.
+
+## 🏗 Développement
+
+### Lancer le serveur de développement
+
+```bash
 npm run dev
+```
 
-# Build pour la production
+### Développement avec Docker
+
+1. Construire l'image de développement
+
+```bash
+docker build -t mycoaching-dev .
+```
+
+2. Lancer le conteneur de développement
+
+```bash
+docker run -it \
+  -p 5173:5173 \
+  -v $(pwd):/app \
+  -v /app/node_modules \
+  mycoaching-dev
+```
+
+3. Pour arrêter le conteneur
+
+```bash
+docker stop mycoaching-dev
+```
+
+4. Pour voir les logs
+
+```bash
+docker logs -f mycoaching-dev
+```
+
+### Lancer les tests unitaires
+
+```bash
+npm run test:unit
+```
+
+### Lancer les tests E2E
+
+```bash
+npm run test:e2e
+```
+
+### Vérifier le linting
+
+```bash
+npm run lint
+```
+
+### Formater le code
+
+```bash
+npm run format
+```
+
+## 📦 Build
+
+Pour construire l'application pour la production :
+
+```bash
 npm run build
 ```
 
-### Installation avec Docker
+## 🏗 Structure du projet
+
+```
+src/
+├── assets/          # Images, fonts, etc.
+├── components/      # Composants Vue réutilisables
+├── modules/         # Modules de l'application
+│   ├── accounts/    # Module de gestion des comptes
+│   ├── auth/        # Module d'authentification
+│   └── ...
+├── router/          # Configuration des routes
+├── shared/          # Code partagé (services, utils, etc.)
+└── stores/          # Stores Pinia
+```
+
+## 🔄 Workflow de développement
+
+1. Créer une branche depuis `dev`
 
 ```bash
-# Construction de l'image Docker
-docker build -t mycoaching .
-
-# Démarrage du conteneur
-docker run -p 3000:3000 mycoaching
+git checkout -b feature/ma-nouvelle-fonctionnalite
 ```
+
+2. Développer et tester localement
+
+```bash
+npm run dev
+npm run test:unit
+```
+
+3. Pousser les changements
+
+```bash
+git add .
+git commit -m "feat: ajout de ma nouvelle fonctionnalité"
+git push origin feature/ma-nouvelle-fonctionnalite
+```
+
+4. Créer une Pull Request vers `dev`
+
+5. Une fois validée, la PR sera mergée dans `dev`
+
+6. Pour déployer en production, créer une PR de `dev` vers `main`
 
 ## 🧪 Tests
 
 ### Tests unitaires
 
-```bash
-# Exécution des tests unitaires
-npm run test:unit
-```
+Les tests unitaires sont écrits avec Vitest et se trouvent dans les dossiers `__tests__` de chaque module.
 
-### Tests E2E avec Cypress
+### Tests E2E
 
-```bash
-# Exécution des tests E2E
-npm run test:e2e
+Les tests E2E sont écrits avec Cypress et se trouvent dans le dossier `cypress/e2e`.
 
-# Ouverture de l'interface Cypress
-npm run cypress:open
-```
+## 📄 Licence
 
-## 🔧 Configuration
-
-### Variables d'environnement
-
-Créez un fichier `.env` à la racine du projet :
-
-```env
-VITE_API_URL=http://localhost:3000
-VITE_APP_TITLE=MyCoaching
-```
-
-### Configuration Tailwind
-
-Le projet utilise Tailwind CSS avec une configuration personnalisée dans `tailwind.config.js`.
-
-## 🚀 Déploiement
-
-### Production
-
-```bash
-# Build pour la production
-npm run build
-
-# Prévisualisation de la build
-npm run preview
-```
-
-### Docker
-
-```bash
-# Build de l'image de production
-docker build -t mycoaching:prod -f Dockerfile.prod .
-
-# Démarrage du conteneur de production
-docker run -p 80:80 mycoaching:prod
-```
-
-## 🎯 Fonctionnalités à venir
-
-- [ ] Authentification et autorisation
-- [ ] Gestion des sessions
-- [ ] Tableau de bord personnalisé
-- [ ] Système de notifications en temps réel
-- [ ] Export de données
-- [ ] Thème sombre/clair
-- [ ] Tests unitaires complets
-- [ ] Documentation API
-- [ ] CI/CD pipeline
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à :
-
-1. Fork le projet
-2. Créer une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
-3. Commiter vos changements (`git commit -m 'Add some AmazingFeature'`)
-4. Pousser vers la branche (`git push origin feature/AmazingFeature`)
-5. Ouvrir une Pull Request
-
-### Standards de code
-
-- Suivre les conventions de nommage Vue.js
-- Utiliser TypeScript pour tout nouveau code
-- Ajouter des tests pour les nouvelles fonctionnalités
-- Documenter les changements majeurs
-
-## 📝 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.

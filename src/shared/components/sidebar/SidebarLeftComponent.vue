@@ -1,32 +1,30 @@
 <script lang="ts" setup>
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/modules/auth/store/useAuthStore'
 
-const router = useRouter()
-const authStore = useAuthStore()
+import type { Account } from '@/modules/accounts/models/Account';
+import { UserIcon } from '@heroicons/vue/24/solid';
+import { computed } from 'vue';
+import { calculateAge } from '@/shared/utils/CalculateAgeFromDate';
 
-defineProps<{
-    isSidebarOpen: boolean
+const props = defineProps<{
+    isSidebarOpen: boolean,
+    account: Account
 }>();
 
-const handleLogout = async () => {
-  try {
-    await authStore.signOut()
-    router.push('/login')
-  } catch (error) {
-    console.error('Erreur lors de la déconnexion:', error)
-  }
-}
+const userAge = computed(() => {
+  if (!props.account.birthday) return 'Non renseigné';
+  return `${calculateAge(props.account.birthday)} ans`;
+});
+
 </script>
 
 <template>
+  <!-- Version Desktop -->
   <aside
     :class="[
-      'fixed inset-y-4 rounded-xl z-50 w-72 transform transition-transform duration-300 ease-in-out glass-effect bg-gradient-to-br from-night-900 via-night-800 to-night-950',
-      isSidebarOpen ? 'translate-x-0' : ' -translate-x-full'
+      'invisible lg:visible fixed inset-0 lg:inset-4 rounded-xl z-50 w-screen lg:w-72 transform transition-transform duration-300 ease-in-out glass-effect bg-gradient-to-br from-night-900 via-night-800 to-night-950',
+      isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
     ]"
   >
-    <!-- Logo et bouton de slideout -->
     <div class="flex items-center justify-between h-16 px-6 border-b border-blue-900/20">
       <div class="flex items-center">
         <div class="relative">
@@ -40,103 +38,76 @@ const handleLogout = async () => {
     </div>
 
     <!-- User Profile -->
-    <div class="p-6 border-b border-blue-900/20">
-      <div class="flex items-center space-x-4">
+    <div class="p-4 border-b border-blue-900/20">
+      <div class="flex flex-col items-center space-y-3">
         <img
-          class="h-16 w-16 rounded-full ring-4 ring-blue-800"
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
+          class="h-24 w-24 rounded-full ring-4 ring-blue-800 object-cover"
+          src="https://images.unsplash.com/photo-1633008692730-ff6cdbdb7621?q=80&w=2160&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt=""
         />
-        <div>
-          <h2 class="text-lg font-semibold text-gray-200">John Doe</h2>
-          <p class="text-sm text-gray-400">john.doe@example.com</p>
+        <div class="text-center">
+          <h2 class="text-lg font-semibold text-gray-200">{{account.firstname}} {{account.lastname}}</h2>
+          <p class="text-sm text-gray-400">{{account.email}}</p>
+        </div>
+        <div class="flex flex-row space-x-2">
+          <UserIcon class="w-6 h-6" :class="[
+            account.gender === 'male' ? 'text-blue-500' :'text-pink-500',
+            ]"/>
+          <p class="text-sm text-gray-400">{{ userAge }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Training Stats -->
+    <div class="p-4 space-y-3">
+      <h3 class="text-sm font-medium text-gray-400">Activité cette semaine</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-blue-900/30 rounded-xl p-3">
+          <p class="text-xs text-gray-400">Séances</p>
+          <div class="flex items-baseline space-x-1">
+            <p class="text-xl font-semibold text-blue-400">{{ account.objectives?.training_per_week || 0 }}</p>
+            <p class="text-xs text-gray-400">/ semaine</p>
+          </div>
+        </div>
+        <div class="bg-orange-900/20 rounded-xl p-3">
+          <p class="text-xs text-gray-400">Objectif</p>
+          <div class="flex items-baseline space-x-1">
+            <p class="text-xl font-semibold text-orange-400">{{ account.health?.target_training || 0 }}</p>
+            <p class="text-xs text-gray-400">séances</p>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- User Stats -->
-    <div class="p-6 space-y-4">
-      <div class="grid grid-cols-2 gap-4">
-        <div class="bg-blue-900/30 rounded-2xl p-4">
-          <p class="text-sm text-gray-400">Sessions</p>
-          <p class="text-2xl font-semibold text-blue-400">12</p>
+    <div class="p-4 space-y-3">
+      <h3 class="text-sm font-medium text-gray-400">Statistiques de santé</h3>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="bg-blue-900/30 rounded-xl p-3">
+          <p class="text-xs text-gray-400">Poids actuel</p>
+          <p class="text-xl font-semibold text-blue-400">{{ account.health?.weight || '-' }} kg</p>
         </div>
-        <div class="bg-orange-900/20 rounded-2xl p-4">
-          <p class="text-sm text-gray-400">Objectifs</p>
-          <p class="text-2xl font-semibold text-orange-400">3</p>
+        <div class="bg-orange-900/20 rounded-xl p-3">
+          <p class="text-xs text-gray-400">Objectif</p>
+          <p class="text-xl font-semibold text-orange-400">{{ account.health?.target_weight || '-' }} kg</p>
+        </div>
+        <div class="bg-green-900/20 rounded-xl p-3">
+          <p class="text-xs text-gray-400">Différence</p>
+          <p class="text-xl font-semibold text-green-400">
+            {{ account.health?.weight && account.health?.target_weight 
+              ? (account.health.target_weight - account.health.weight).toFixed(1) 
+              : '-' }} kg
+          </p>
+        </div>
+        <div class="bg-purple-900/20 rounded-xl p-3">
+          <p class="text-xs text-gray-400">IMC</p>
+          <p class="text-xl font-semibold text-purple-400">
+            {{ account.health?.weight && account.health?.height 
+              ? ((account.health.weight / ((account.health.height / 100) ** 2))).toFixed(1)
+              : '-' }}
+          </p>
         </div>
       </div>
-    </div>
-
-    <!-- User Menu -->
-    <div class="p-6 space-y-4">
-      <button
-        class="w-full flex items-center px-4 py-3 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105 text-gray-300 hover:bg-blue-900/30 hover:text-orange-400"
-      >
-        <svg
-          class="mr-3 h-5 w-5 text-gray-400"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-          />
-        </svg>
-        Mon Profil
-      </button>
-
-      <button
-        class="w-full flex items-center px-4 py-3 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105 text-gray-300 hover:bg-blue-900/30 hover:text-orange-400"
-      >
-        <svg
-          class="mr-3 h-5 w-5 text-gray-400"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
-          />
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-          />
-        </svg>
-        Paramètres
-      </button>
-
-      <!-- Bouton de déconnexion -->
-      <button
-        @click="handleLogout"
-        class="w-full flex items-center px-4 py-3 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105 text-gray-300 hover:bg-red-900/30 hover:text-red-400"
-      >
-        <svg
-          class="mr-3 h-5 w-5 transition-transform duration-200 group-hover:scale-110 text-gray-400 group-hover:text-red-400"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
-          />
-        </svg>
-        Se déconnecter
-      </button>
     </div>
   </aside>
 </template>
