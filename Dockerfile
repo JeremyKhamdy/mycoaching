@@ -26,7 +26,6 @@ WORKDIR /app
 COPY package*.json ./
 COPY vite.config.ts ./
 COPY tsconfig*.json ./
-COPY .env.example ./
 
 ## Install dependencies
 RUN npm install
