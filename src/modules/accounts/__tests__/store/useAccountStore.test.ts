@@ -53,28 +53,28 @@ vi.mock('vue-toastification', () => ({
 const createDefaultMockAccount = (overrides: Partial<Account> = {}): Account => ({
   id: 1,
   user_id: '123e4567-e89b-12d3-a456-426614174000' as const,
-  firstname: 'John',
-  lastname: 'Doe',
-  email: 'john@example.com',
+  firstname: 'test',
+  lastname: 'test',
+  email: 'test@test.com',
   password: 'hashedPassword',
   height: 180,
   gender: EnumGender.male,
   birthday: '1990-01-01',
   phone_number: '1234567890',
-  createdAt: '2024-01-01',
-  updatedAt: '2024-01-01',
+  createdAt: '1999-01-01',
+  updatedAt: '1999-01-01',
   is_active: true,
   health: {
     id: 1,
     height: 180,
-    weight: 80,
-    target_weight: 75,
-    target_training: 3,
+    weight: 75,
+    target_weight: 76,
+    target_training: 5,
     measure_weight: EnumMeasureWeight.weekly
   },
   objectives: {
     id: 1,
-    training_per_week: 3
+    training_per_week: 5
   },
   role: {
     id: 1,
@@ -156,6 +156,69 @@ describe('useAccountStore', () => {
       expect(getAccountMock).toHaveBeenCalledWith('123e4567-e89b-12d3-a456-426614174000')
       expect(store.account).toBeNull()
       expect(store.loading).toBe(false)
+    })
+  })
+
+  describe('fetchAccounts', () => {
+    it('should return an array of accounts when data is available', async () => {
+      const mockAccounts = [createDefaultMockAccount()]
+      const mockResponse: PostgrestResponse<Account> = {
+        data: mockAccounts,
+        error: null,
+        count: mockAccounts.length,
+        status: 200,
+        statusText: 'OK'
+      }
+
+      const getAccountsMock = vi.fn().mockResolvedValue(mockResponse)
+      const mockService = createMockService({ getAccounts: getAccountsMock })
+      vi.mocked(useAccountService).mockReturnValue(mockService)
+
+      const store = useAccountStore()
+      await store.fetchAccounts()
+
+      expect(getAccountsMock).toHaveBeenCalled()
+      expect(store.accounts).toStrictEqual(mockAccounts)
+    })
+
+    it('should return an empty array when no data is available', async () => {
+      const mockResponse: PostgrestResponse<Account> = {
+        data: [],
+        error: null,
+        count: 0,
+        status: 200,
+        statusText: 'OK'
+      }
+
+      const getAccountsMock = vi.fn().mockResolvedValue(mockResponse)
+      const mockService = createMockService({ getAccounts: getAccountsMock })
+      vi.mocked(useAccountService).mockReturnValue(mockService)
+
+      const store = useAccountStore()
+      await store.fetchAccounts()
+
+      expect(getAccountsMock).toHaveBeenCalled()
+      expect(store.accounts).toStrictEqual([])
+    })
+
+    it('should return an empty array when response data is null', async () => {
+      const mockResponse: PostgrestResponse<Account> = {
+        data: null,
+        error: null as unknown as PostgrestError,
+        count: null,
+        status: 200,
+        statusText: 'OK'
+      }
+
+      const getAccountsMock = vi.fn().mockResolvedValue(mockResponse)
+      const mockService = createMockService({ getAccounts: getAccountsMock })
+      vi.mocked(useAccountService).mockReturnValue(mockService)
+
+      const store = useAccountStore()
+      await store.fetchAccounts()
+
+      expect(getAccountsMock).toHaveBeenCalled()
+      expect(store.accounts).toStrictEqual([])
     })
   })
 
@@ -332,69 +395,6 @@ describe('useAccountStore', () => {
       })
       expect(getAccountMock).toHaveBeenCalledWith(mockAccount.user_id)
       expect(store.loading).toBe(false)
-    })
-  })
-
-  describe('fetchAccounts', () => {
-    it('should return an array of accounts when data is available', async () => {
-      const mockAccounts = [createDefaultMockAccount()]
-      const mockResponse: PostgrestResponse<Account> = {
-        data: mockAccounts,
-        error: null,
-        count: mockAccounts.length,
-        status: 200,
-        statusText: 'OK'
-      }
-
-      const getAccountsMock = vi.fn().mockResolvedValue(mockResponse)
-      const mockService = createMockService({ getAccounts: getAccountsMock })
-      vi.mocked(useAccountService).mockReturnValue(mockService)
-
-      const store = useAccountStore()
-      await store.fetchAccounts()
-
-      expect(getAccountsMock).toHaveBeenCalled()
-      expect(store.accounts).toStrictEqual(mockAccounts)
-    })
-
-    it('should return an empty array when no data is available', async () => {
-      const mockResponse: PostgrestResponse<Account> = {
-        data: [],
-        error: null,
-        count: 0,
-        status: 200,
-        statusText: 'OK'
-      }
-
-      const getAccountsMock = vi.fn().mockResolvedValue(mockResponse)
-      const mockService = createMockService({ getAccounts: getAccountsMock })
-      vi.mocked(useAccountService).mockReturnValue(mockService)
-
-      const store = useAccountStore()
-      await store.fetchAccounts()
-
-      expect(getAccountsMock).toHaveBeenCalled()
-      expect(store.accounts).toStrictEqual([])
-    })
-
-    it('should return an empty array when response data is null', async () => {
-      const mockResponse: PostgrestResponse<Account> = {
-        data: null,
-        error: null as unknown as PostgrestError,
-        count: null,
-        status: 200,
-        statusText: 'OK'
-      }
-
-      const getAccountsMock = vi.fn().mockResolvedValue(mockResponse)
-      const mockService = createMockService({ getAccounts: getAccountsMock })
-      vi.mocked(useAccountService).mockReturnValue(mockService)
-
-      const store = useAccountStore()
-      await store.fetchAccounts()
-
-      expect(getAccountsMock).toHaveBeenCalled()
-      expect(store.accounts).toStrictEqual([])
     })
   })
 })
