@@ -10,15 +10,15 @@ const authStore = useAuthStore()
 const accountStore = useAccountStore()
 
 onMounted(async () => {
-    if (authStore.user === null) {
-        await authStore.fetchUser()
-        accountStore.account = authStore.account
-    }
+    // if (authStore.user === null) {
+    //     await authStore.fetchUser()
+    //     accountStore.account = authStore.account
+    // }
 })
 </script>
 
 <template>
-    <div v-if="authStore.loading" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-fuchsia-50">
+    <div v-if="authStore.loadingSession" class="min-h-screen flex items-center justify-center bg-gradient-to-br from-violet-50 via-white to-fuchsia-50">
         <div class="animate-spin h-8 w-8 text-violet-500">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -27,8 +27,8 @@ onMounted(async () => {
         </div>
     </div>
     <template v-else>
-        <CreateAccountView :user="authStore.user" v-if="authStore.user && !authStore.account" />
-        <slot v-else-if="authStore.user && authStore.account" :user="authStore.user" :account="authStore.account"></slot>
+        <slot v-if="authStore.user && authStore.account" :user="authStore.user" :account="authStore.account"></slot>
+        <CreateAccountView v-else-if="authStore.user && !authStore.account" :user="authStore.user" />
         <VerifyOTPView v-else-if="authStore.pendingVerification" />
         <LoginView v-else />
     </template>

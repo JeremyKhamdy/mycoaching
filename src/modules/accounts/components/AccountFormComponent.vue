@@ -27,6 +27,7 @@ onMounted(() => {
       lastname: props.account.lastname,
       birthday: props.account.birthday,
       gender: props.account.gender,
+      phone_number: props.account.phone_number,
       is_active: props.account.is_active
     };
   }

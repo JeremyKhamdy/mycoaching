@@ -15,6 +15,7 @@ export const useAuthStore = defineStore('auth', () => {
   const account = ref<Account | null>(null)
   const actualSession = ref<Session | null>(null)
   const loading = ref(false)
+  const loadingSession = ref(false)
   const error = ref<string | null>(null)
   const pendingVerification = ref<boolean>(false)
   const pendingVerificationEmail = ref<string>('')
@@ -31,38 +32,44 @@ export const useAuthStore = defineStore('auth', () => {
   const fetchUser = async () => {
     console.log('Fetching user...')
     // Notifier le state qu'un chargement est en cours.
-    loading.value = true
-    try {
-      // Récupération de la session de l'utilisateur et de ses informations.
-      const {
-        data: { session },
-        error
-      } = await supabase.auth.getSession()
+    loadingSession.value = true
+    if (loadingSession.value && user.value === null && account.value === null) {
+      try {
+        // Récupération de la session de l'utilisateur et de ses informations.
+        const {
+          data: { session },
+          error
+        } = await supabase.auth.getSession()
 
-      if (error) throw new Error(error.message)
-      // Mis à jour des states du store
-      actualSession.value = session
-      user.value = session?.user ?? null
-
-      if (user.value) {
-        // Récupération du compte de l'utilisateur.
-        const { data } = await getAccount(user.value.id)
+        if (error) throw new Error(error.message)
         // Mis à jour des states du store
-        account.value = data
+        actualSession.value = session
+        user.value = session?.user ?? null
+
+        console.log(user.value)
+        if (user.value) {
+          console.log('...chargement du compte')
+          // Récupération du compte de l'utilisateur.
+          const { data } = await getAccount(user.value.id)
+          // Mis à jour des states du store
+          account.value = data
+        }
+
+        loadingSession.value = false
+      } catch (e) {
+        console.error('Error fetching user:', e)
+        error.value =
+          e instanceof Error
+            ? e.message
+            : "Une erreur est survenue lors de la récupération de l'utilisateur connecté"
+
+        // Affichage du message d'erreur
+        toast.error(`Erreur : ${error.value}`, {
+          position: POSITION.BOTTOM_RIGHT
+        })
       }
-
-      loading.value = false
-    } catch (e) {
-      console.error('Error fetching user:', e)
-      error.value =
-        e instanceof Error
-          ? e.message
-          : "Une erreur est survenue lors de la récupération de l'utilisateur connecté"
-
-      // Affichage du message d'erreur
-      toast.error(`Erreur : ${error.value}`, {
-        position: POSITION.BOTTOM_RIGHT
-      })
+    } else {
+      loadingSession.value = false
     }
   }
 
@@ -110,6 +117,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Remise à défaut des states du store
     actualSession.value = null
     user.value = null
+    account.value = null
     pendingVerification.value = false
     pendingVerificationEmail.value = ''
 
@@ -122,7 +130,7 @@ export const useAuthStore = defineStore('auth', () => {
   const sendOTP = async (email: string) => {
     try {
       // Notifier le store qu'un chargement est en cours.
-      loading.value = true
+      // loading.value = true
       error.value = null
 
       // Utilisation de la méthode supabase signInWithOtp pour envoyer le code de vérification afin de se connecter.
@@ -162,7 +170,7 @@ export const useAuthStore = defineStore('auth', () => {
 
     try {
       // Notifier le store qu'un chargement est en cours.
-      loading.value = true
+      loadingSession.value = true
       error.value = null
       // Utilisation de le méthode supabase verifyOtp pour vérifier le code, renvoi l'utilisateur.
       const { data, error: verifyError } = await supabase.auth.verifyOtp({
@@ -176,6 +184,15 @@ export const useAuthStore = defineStore('auth', () => {
       // Mis à jour des states du store.
       user.value = data.user
       actualSession.value = data.session
+
+      if (user.value) {
+        console.log('...chargement du compte')
+        // Récupération du compte de l'utilisateur.
+        const { data } = await getAccount(user.value.id)
+        // Mis à jour des states du store
+        account.value = data
+      }
+
       pendingVerification.value = false
       pendingVerificationEmail.value = ''
 
@@ -183,15 +200,14 @@ export const useAuthStore = defineStore('auth', () => {
       toast.success(`Code vérifié avec succes, bienvenue sur l'application.`, {
         position: POSITION.BOTTOM_RIGHT
       })
+      // Notifier le store que le chargement est fini.
+      loadingSession.value = false
     } catch (e: any) {
       error.value = e.message || 'Erreur lors de la vérification du code OTP'
       // Affichage du message d'erreur toast.
       toast.error(`Erreur : ${error.value}`, {
         position: POSITION.BOTTOM_RIGHT
       })
-    } finally {
-      // Notifier le store que le chargement est fini.
-      loading.value = false
     }
   }
 
@@ -205,6 +221,7 @@ export const useAuthStore = defineStore('auth', () => {
     account,
     actualSession,
     loading,
+    loadingSession,
     error,
     pendingVerification,
     pendingVerificationEmail,

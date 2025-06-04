@@ -4,6 +4,7 @@ import { useAuthStore } from '@/modules/auth/store/useAuthStore'
 import LoginView from '@/modules/auth/views/LoginView.vue'
 import VerifyOTPView from '@/modules/auth/views/VerifyOTPView.vue'
 import CreateAccountView from '@/modules/accounts/views/CreateAccountView.vue'
+import { workoutRoute } from '@/modules/workout/router/route'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -15,6 +16,7 @@ const router = createRouter({
       // component: () => import('../shared/views/HomeView.vue'),
       children: [
         accountsRoute,
+        workoutRoute,
         {
           path: '/dashboard',
           name: 'dashboard',

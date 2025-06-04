@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { onMounted, ref } from 'vue';
+import { ref, watch } from 'vue';
 import SidebarLeftComponent from './sidebar/SidebarLeftComponent.vue';
 import SidebarTopComponent from './sidebar/SidebarTopComponent.vue';
 import type { User } from '@supabase/supabase-js';
@@ -12,19 +12,18 @@ defineProps<{
 
 const isSidebarOpen = ref(true)
 const isMobileMenuOpen = ref(false)
+const isSidebarMobileOpen = ref(false)
 
-onMounted(async () => {
-  // await accountStore.fetchAccount(props.user.id)
-})
+
 </script>
 
 <template>
-  <div class="min-h-screen bg-white md:p-4">
+  <div class="min-h-screen bg-white">
     <!-- Sidebar -->
     <SidebarLeftComponent
     :account="account"
     :is-sidebar-open="isSidebarOpen" 
-    @update:isSidebarOpen="(event) => isSidebarOpen = event"
+    @update:isSidebarOpen="(event) => isSidebarMobileOpen = event"
 
     />
     

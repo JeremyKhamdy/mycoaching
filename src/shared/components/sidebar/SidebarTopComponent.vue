@@ -4,8 +4,7 @@ import {
   ArrowRightStartOnRectangleIcon,
   ArrowLeftStartOnRectangleIcon
 } from '@heroicons/vue/24/outline';
-import { useAccountStore } from '@/modules/accounts/store/useAccountStore';
-import { computed, onUnmounted, ref, watch } from 'vue';
+import { computed, onUnmounted, watch } from 'vue';
 import { useAuthStore } from '@/modules/auth/store/useAuthStore';
 
 const props = defineProps<{
@@ -19,7 +18,7 @@ const emit = defineEmits<{
 }>()
 
 // Gestion du scroll du body
-watch(() => props.isSidebarOpen, (isOpen) => {
+watch(() => props.isMobileMenuOpen, (isOpen) => {
   if (isOpen) {
     document.body.classList.add('overflow-hidden');
   } else {
@@ -43,6 +42,7 @@ const navigation = [
   { name: 'Comptes utilisateurs', to: '/accounts', adminOnly: true },
   { name: 'Mon profil', to: '/profil' },
   { name: 'Paramètres', to: '/settings', adminOnly: true },
+  { name: 'Se deconnecter', to: '/logout' },
 ]
 
 const filteredNavigation = computed(() => {
@@ -51,13 +51,13 @@ const filteredNavigation = computed(() => {
 </script>
 
 <template>
-  <div class="sticky top-0 z-40 bg-white py-4 h-16">
+  <div class="sticky top-0 z-40 bg-white py-10 pt-12 h-16">
     <div class="flex items-center justify-between h-full px-6">
       <!-- Left side -->
-      <div class="flex items-center space-x-4 pr-6 flex-1 min-w-0">
+      <div class="flex justify-end md:items-center space-x-4 pr-6 flex-1 min-w-0">
         <button
           @click="emit('update:isSidebarOpen', !isSidebarOpen)"
-          class="p-2 rounded-2xl text-night-800 focus:outline-none transition-all duration-200 flex-shrink-0"
+          class="hidden lg:block p-2 rounded-2xl text-night-800 focus:outline-none transition-all duration-200 flex-shrink-0"
         >
           <ArrowLeftStartOnRectangleIcon v-if="isSidebarOpen" class="h-6 w-6"/>
           <ArrowRightStartOnRectangleIcon v-else class="h-6 w-6"/>
@@ -95,7 +95,7 @@ const filteredNavigation = computed(() => {
       <div class="flex-shrink-0 ml-6">
         <button
           @click="authStore.signOut()"
-          class="flex items-center px-4 py-2 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105 text-red-900/30 hover:text-red-400 whitespace-nowrap min-w-[140px] justify-center"
+          class="hidden lg:flex items-center px-4 py-2 text-sm font-medium rounded-2xl transition-all duration-200 hover:scale-105 text-red-900/30 hover:text-red-400 whitespace-nowrap min-w-[140px] justify-center"
         >
           <ArrowRightStartOnRectangleIcon class="h-5 w-5 mr-2 flex-shrink-0" />
           <span class="flex-shrink-0">Se déconnecter</span>

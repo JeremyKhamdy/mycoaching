@@ -8,12 +8,18 @@ import {
 import type { Account } from '../models/Account';
 import type { User } from '@supabase/supabase-js';
 import InformationsComponent from '../components/InformationsComponent.vue';
+import { onMounted } from 'vue';
+import { useAccountStore } from '../store/useAccountStore';
 
 const props = defineProps<{
     user: User;
     account: Account
 }>()
 
+const accountStore = useAccountStore()
+onMounted(() => {
+  accountStore.account = props.account
+})
 </script>
 
 <template>

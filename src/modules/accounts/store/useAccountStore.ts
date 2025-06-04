@@ -14,7 +14,7 @@ export const useAccountStore = defineStore('account', () => {
 
   // Initialisation des states du store
   const account = ref<Account | null>(null)
-  const accounts = ref<Account[] | null>([])
+  const accounts = ref<Account[]>([])
   const loading = ref(false)
 
   // Récupération des méthodes du service.
@@ -57,12 +57,17 @@ export const useAccountStore = defineStore('account', () => {
     loading.value = true
     try {
       // Récupération de tous les comptes.
-      const { data, error } = await getAccounts()
+      const response = await getAccounts()
+      console.log('Response from getAccounts:', response)
+      const { data, error } = response
+      console.log('Data from response:', data)
+      console.log('Error from response:', error)
 
       if (error) throw new Error(error.message)
 
       // Mis à jour des states du store.
-      accounts.value = data
+      accounts.value = data || []
+      console.log('Updated accounts.value:', accounts.value)
 
       // Affichage du message de succès.
       toast.success('Liste des comptes bien récupérés', {
@@ -201,6 +206,7 @@ export const useAccountStore = defineStore('account', () => {
 
       // Refetch de l'account pour avoir les données à jour
       if (account.value?.user_id) {
+        console.log("... refetch du compte après l'update")
         const updatedAccount = await fetchAccount(account.value.user_id)
         return updatedAccount
       }

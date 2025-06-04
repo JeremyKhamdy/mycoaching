@@ -35,7 +35,7 @@ const measureWeightOptions = [
 ];
 
 const hasHealthData = computed(() => {
-  return account.value?.health.id
+  return account.value?.health?.id
 });
 
 const handleSubmit = async () => {

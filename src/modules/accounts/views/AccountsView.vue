@@ -4,10 +4,10 @@ import { useAccountStore } from '../store/useAccountStore';
 import AccountsListComponent from '../components/AccountsListComponent.vue';
 import AccountFormComponent from '../components/AccountFormComponent.vue';
 import type { Account } from '../models/Account';
-import { useToast } from 'vue-toastification';
+import { useAuthStore } from '@/modules/auth/store/useAuthStore';
 
-const toast = useToast();
 const store = useAccountStore();
+const authStore = useAuthStore();
 const showAccountForm = ref(false);
 const editingAccount = ref<Account | null>(null);
 const searchQuery = ref('');
@@ -28,7 +28,8 @@ const handleFormSubmit = async (accountData: Partial<Account>) => {
   if (editingAccount.value) {
     console.log('editingAccount',editingAccount.value)
     console.log('accountData',accountData)
-    await store.updateAccount(editingAccount.value.id, accountData);
+    const updatedAccount = await store.updateAccount(editingAccount.value.id, accountData);
+    authStore.account = updatedAccount as Account
   }
   showAccountForm.value = false;
   editingAccount.value = null;
