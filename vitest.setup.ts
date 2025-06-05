@@ -20,7 +20,6 @@ global.IntersectionObserver = vi.fn().mockImplementation(() => ({
 
 // Configuration globale pour Vue Test Utils
 config.global.stubs = {
-    img: true,
     ExclamationCircleIcon: true,
     ArrowRightIcon: true,
     ArrowPathIcon: true

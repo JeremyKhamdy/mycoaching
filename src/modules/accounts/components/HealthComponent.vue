@@ -10,7 +10,7 @@ import {
   CheckIcon
 } from '@heroicons/vue/24/outline';
 import { useAccountStore } from '../store/useAccountStore';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import UiInputNumber from '@/shared/ui/inputs/UiInputNumber.vue';
 import UiSelect from '@/shared/ui/select/UiSelect.vue';
 import { useAuthStore } from '@/modules/auth/store/useAuthStore';
@@ -27,6 +27,19 @@ const formData = ref<Partial<Health>>({
   target_training: account.value?.health?.target_training || undefined,
   measure_weight: account.value?.health?.measure_weight || EnumMeasureWeight.weekly
 });
+
+// Mettre à jour formData quand account change
+watch(account, (newAccount) => {
+  if (newAccount?.health) {
+    formData.value = {
+      height: newAccount.health.height || undefined,
+      weight: newAccount.health.weight || undefined,
+      target_weight: newAccount.health.target_weight || undefined,
+      target_training: newAccount.health.target_training || undefined,
+      measure_weight: newAccount.health.measure_weight || EnumMeasureWeight.weekly
+    };
+  }
+}, { immediate: true });
 
 const measureWeightOptions = [
   { value: EnumMeasureWeight.daily, label: 'Quotidien' },
@@ -47,13 +60,15 @@ const handleSubmit = async () => {
 };
 
 const handleCancel = () => {
-  formData.value = {
-    height: account.value?.health?.height || undefined,
-    weight: account.value?.health?.weight || undefined,
-    target_weight: account.value?.health?.target_weight || undefined,
-    target_training: account.value?.health?.target_training || undefined,
-    measure_weight: account.value?.health?.measure_weight || EnumMeasureWeight.weekly
-  };
+  if (account.value?.health) {
+    formData.value = {
+      height: account.value.health.height || undefined,
+      weight: account.value.health.weight || undefined,
+      target_weight: account.value.health.target_weight || undefined,
+      target_training: account.value.health.target_training || undefined,
+      measure_weight: account.value.health.measure_weight || EnumMeasureWeight.weekly
+    };
+  }
   isEditing.value = false;
 };
 </script>
@@ -192,7 +207,7 @@ const handleCancel = () => {
                   />
                   <div>
                     <label class="block text-sm font-medium text-night-700">IMC</label>
-                    <p class="mt-1 text-lg text-night-900">
+                    <p id="IMC" class="mt-1 text-lg text-night-900">
                       {{ account?.health?.weight && account?.health?.height 
                         ? ((account?.health.weight / ((account?.health.height / 100) ** 2)).toFixed(1))
                         : 'Non calculable' }}
