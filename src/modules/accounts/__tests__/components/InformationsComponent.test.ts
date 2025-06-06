@@ -1,74 +1,18 @@
-import { mount, flushPromises } from '@vue/test-utils'
+import { flushPromises } from '@vue/test-utils'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import InformationsComponent from '../../components/InformationsComponent.vue'
-import { createTestingPinia } from '@pinia/testing'
 import { useAccountStore } from '../../store/useAccountStore'
 import { useAuthStore } from '@/modules/auth/store/useAuthStore'
-import type { Account } from '../../models/Account'
-import { EnumGender } from '../../models/Account'
-import { EnumMeasureWeight } from '../../models/Health'
-import { useAccountService } from '../../services/useAccountService'
-import type { PostgrestResponse, PostgrestSingleResponse } from '@supabase/supabase-js'
-
-const createMockAccount = (overrides: Partial<Account> = {}): Account => ({
-    id: 1,
-    user_id: '123e4567-e89b-12d3-a456-426614174000',
-    firstname: 'test',
-    lastname: 'test',
-    email: 'test@test.com',
-    password: 'hashedPassword',
-    birthday: '1990-01-01',
-    phone_number: '0123456789',
-    gender: EnumGender.male,
-    height: 180,
-    createdAt: '2024-01-01',
-    updatedAt: '2024-01-01',
-    is_active: true,
-    health: {
-        id: 1,
-        height: 180,
-        weight: 75,
-        target_weight: 70,
-        target_training: 3,
-        measure_weight: EnumMeasureWeight.weekly
-    },
-    objectives: {
-        id: 1,
-        training_per_week: 3
-    },
-    role: {
-        id: 1,
-        name: 'user'
-    },
-    ...overrides
-})
+import { createMockAccount, createTestWrapper } from '@/shared/test/testUtils'
+import { nextTick } from 'vue'
 
 describe('InformationsComponent', () => {
     let wrapper: any
     let accountStore: any
     let authStore: any
-    let pinia: any
-
-    const createWrapper = () => {
-        pinia = createTestingPinia({
-            createSpy: vi.fn,
-            stubActions: false,
-            initialState: {
-                auth: {
-                    account: createMockAccount()
-                }
-            }
-        })
-
-        return mount(InformationsComponent, {
-            global: {
-                plugins: [pinia]
-            }
-        })
-    }
 
     beforeEach(async () => {
-        wrapper = createWrapper()
+        wrapper = createTestWrapper(InformationsComponent)
         accountStore = useAccountStore()
         authStore = useAuthStore()
         await flushPromises()
@@ -98,6 +42,7 @@ describe('InformationsComponent', () => {
         it('should toggle edit mode when clicking edit button', async () => {
             const editButton = wrapper.find('button')
             await editButton.trigger('click')
+            await nextTick()
             await flushPromises()
 
             expect(wrapper.find('input[type="text"]').exists()).toBe(true)
@@ -108,6 +53,7 @@ describe('InformationsComponent', () => {
         it('should show save and cancel buttons in edit mode', async () => {
             const editButton = wrapper.find('button')
             await editButton.trigger('click')
+            await nextTick()
             await flushPromises()
 
             const buttons = wrapper.findAll('button')
@@ -118,23 +64,24 @@ describe('InformationsComponent', () => {
 
     describe('Mise à jour des informations', () => {
         it('should update account information when saving', async () => {
-            // Préparer les données de test
-            const accountData = createMockAccount({
-                firstname: 'testtest Updated',
-                lastname: 'testtest',
-                phone_number: '0987654321',
-                gender: EnumGender.female
-            })
-
-            // Configurer le mock du store
-            accountStore.updateAccount = vi.fn().mockResolvedValue(accountData)
-
-            // Activer le mode édition
-            const editButton = wrapper.find('button')
-            await editButton.trigger('click')
+            const account = createMockAccount()
+            authStore.account = account
             await flushPromises()
 
-            // Remplir le formulaire
+            const updatedAccount = {
+                ...account,
+                firstname: 'testtest',
+                lastname: 'testtest',
+                phone_number: '0987654321',
+                gender: 'female'
+            }
+            accountStore.updateAccount = vi.fn().mockResolvedValue(updatedAccount)
+
+            const editButton = wrapper.find('button')
+            await editButton.trigger('click')
+            await nextTick()
+            await flushPromises()
+
             const firstnameInput = wrapper.find('input[type="text"]')
             const lastnameInput = wrapper.findAll('input[type="text"]')[1]
             const phoneInput = wrapper.find('input[type="tel"]')
@@ -143,24 +90,24 @@ describe('InformationsComponent', () => {
             await firstnameInput.setValue('testtest')
             await lastnameInput.setValue('testtest')
             await phoneInput.setValue('0987654321')
-            await genderSelect.setValue(EnumGender.female)
+            await genderSelect.setValue('female')
+            await nextTick()
             await flushPromises()
 
-            // Sauvegarder
             const saveButton = wrapper.findAll('button')[2]
             await saveButton.trigger('click')
+            await nextTick()
             await flushPromises()
 
-            // Vérifier les appels
-            expect(accountStore.updateAccount).toHaveBeenCalledWith(1, {
+            expect(accountStore.updateAccount).toHaveBeenCalledWith(account.id, {
                 firstname: 'testtest',
                 lastname: 'testtest',
                 phone_number: '0987654321',
-                gender: EnumGender.female,
-                email: 'test@test.com',
-                birthday: '1990-01-01'
+                gender: 'female',
+                email: account.email,
+                birthday: account.birthday
             })
-            expect(authStore.account).toEqual(accountData)
+            expect(authStore.account).toEqual(updatedAccount)
         })
 
         it('should cancel editing and revert changes', async () => {
@@ -168,19 +115,19 @@ describe('InformationsComponent', () => {
             authStore.account = account
             await flushPromises()
 
-            // Activer le mode édition
             const editButton = wrapper.find('button')
             await editButton.trigger('click')
+            await nextTick()
             await flushPromises()
 
-            // Modifier les champs
             const firstnameInput = wrapper.find('input[type="text"]')
             await firstnameInput.setValue('Jane')
+            await nextTick()
             await flushPromises()
 
-            // Annuler
             const cancelButton = wrapper.findAll('button')[0]
             await cancelButton.trigger('click')
+            await nextTick()
             await flushPromises()
 
             expect(wrapper.text()).toContain(account.firstname)

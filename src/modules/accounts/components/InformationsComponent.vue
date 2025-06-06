@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { Account } from '../models/Account';
 import { useAccountStore } from '../store/useAccountStore';
 import { useAuthStore } from '@/modules/auth/store/useAuthStore';
@@ -25,9 +25,27 @@ const formData = ref<Partial<Account>>({
     email: account.value?.email,
 });
 
+// Mettre à jour formData quand account change
+watch(account, (newAccount) => {
+    if (newAccount) {
+        formData.value = {
+            firstname: newAccount.firstname,
+            lastname: newAccount.lastname,
+            birthday: newAccount.birthday,
+            phone_number: newAccount.phone_number,
+            gender: newAccount.gender,
+            email: newAccount.email
+        };
+    }
+}, { immediate: true });
+
 const handleSubmit = async () => {
+  console.log('... je vais etre submit')
   if (account.value?.id && formData.value) {
+    console.log('... je vais lancer la promesse de modification')
     const updatedAccount = await accountStore.updateAccount(account.value?.id, formData.value);
+    console.log(updatedAccount)
+    console.log('.. apres la promesse')
     isEditing.value = false;
 
     authStore.account = updatedAccount as Account

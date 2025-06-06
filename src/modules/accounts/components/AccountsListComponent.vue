@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { useAccountStore } from '../store/useAccountStore';
 import { 
   PencilSquareIcon,
@@ -10,14 +10,22 @@ import type { Account } from '../models/Account';
 const accountsStore = useAccountStore();
 const searchQuery = ref('');
 
+// Ajouter un watcher pour déboguer
+watch(searchQuery, (newValue) => {
+    console.log('searchQuery changed:', newValue);
+});
+
 const filteredAccounts = computed(() => {
-  if (!searchQuery.value) return accountsStore.accounts;
-  const query = searchQuery.value.toLowerCase();
-  return accountsStore.accounts?.filter(account => 
-    account.firstname.toLowerCase().includes(query) ||
-    account.lastname.toLowerCase().includes(query) ||
-    account.email.toLowerCase().includes(query)
-  );
+    console.log('Computing filteredAccounts with searchQuery:', searchQuery.value);
+    if (!searchQuery.value) return accountsStore.accounts;
+    const query = searchQuery.value.toLowerCase();
+    const filtered = accountsStore.accounts?.filter(account => 
+        account.firstname.toLowerCase().includes(query) ||
+        account.lastname.toLowerCase().includes(query) ||
+        account.email.toLowerCase().includes(query)
+    );
+    console.log('Filtered accounts:', filtered);
+    return filtered;
 });
 
 const toggleAccountStatus = async (account: Account) => {
@@ -35,6 +43,7 @@ const toggleAccountStatus = async (account: Account) => {
     <!-- Search -->
     <div class="p-4 border-b border-night-900/20">
       <input
+        id="searchAccountInput"
         v-model="searchQuery"
         type="text"
         placeholder="Rechercher un compte..."
@@ -87,6 +96,7 @@ const toggleAccountStatus = async (account: Account) => {
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center space-x-3">
                 <button
+                  id="emitToggleStatus"
                   type="button"
                   @click="toggleAccountStatus(account)"
                   class="relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-night-500 focus:ring-offset-2"
@@ -112,6 +122,7 @@ const toggleAccountStatus = async (account: Account) => {
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
               <button
+                id="emitEdit"
                 class="text-night-600 hover:text-night-900 mr-4"
                 @click="$emit('edit', account)"
               >

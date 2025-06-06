@@ -57,17 +57,12 @@ export const useAccountStore = defineStore('account', () => {
         loading.value = true
         try {
             // Récupération de tous les comptes.
-            const response = await getAccounts()
-            console.log('Response from getAccounts:', response)
-            const { data, error } = response
-            console.log('Data from response:', data)
-            console.log('Error from response:', error)
+            const { data, error } = await getAccounts()
 
             if (error) throw new Error(error.message)
 
             // Mis à jour des states du store.
             accounts.value = data || []
-            console.log('Updated accounts.value:', accounts.value)
 
             // Affichage du message de succès.
             toast.success('Liste des comptes bien récupérés', {
@@ -90,9 +85,12 @@ export const useAccountStore = defineStore('account', () => {
         // Notifier le store qu'un chargement est en cours.
         loading.value = true
         try {
+            console.log('... avant la promesse')
             // Utilisation de la méthode post du service en lien pour créer un compte lors de la première connexion.
             const { data, error } = await postAccount(accountData, email, userId)
+            console.log('... apres la promesse')
 
+            console.log(data)
             if (error) throw new Error(error.message)
 
             // Mis à jour des states du store.
@@ -120,10 +118,8 @@ export const useAccountStore = defineStore('account', () => {
         loading.value = true
 
         try {
-            console.log('... debut de la requete')
             // Utilisation de la méthode patch du service en lien, pour mettre à jour le compte d'un utlisateur.
             const { data, error } = await patchAccount(accountId, accountData)
-            console.log('... fin de la requete')
 
             // Si la liste des comptes n'est pas vide/null, retirer et ajouter le compte à jour.
             if (accounts.value) {
