@@ -20,6 +20,7 @@ onMounted(() => {
 });
 
 const handleEdit = (account: Account) => {
+  console.log('... I got called')
   editingAccount.value = { ...account };
   showAccountForm.value = true;
 };
@@ -35,8 +36,6 @@ const handleFormSubmit = async (accountData: Partial<Account>) => {
   editingAccount.value = null;
 };
 
-const triggerToastNotification = () => {
-}
 </script>
 
 <template>
@@ -78,10 +77,11 @@ const triggerToastNotification = () => {
   <Teleport to="body">
     <div
       v-if="showAccountForm"
+      id="modalForm"
       class="fixed inset-0 bg-night-900/50 backdrop-blur-sm flex items-center justify-center z-50"
     >
       <div class="card w-full max-w-md mx-4 bg-night-900">
-        <h2 class="text-xl font-bold text-white mb-4">
+        <h2 class="modal-title text-xl font-bold text-white mb-4">
           {{ editingAccount ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur' }}
         </h2>
         <AccountFormComponent

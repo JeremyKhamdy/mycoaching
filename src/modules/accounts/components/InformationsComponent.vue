@@ -1,10 +1,14 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import type { Account } from '../models/Account';
 import { useAccountStore } from '../store/useAccountStore';
 import { useAuthStore } from '@/modules/auth/store/useAuthStore';
-import { UserCircleIcon,PencilSquareIcon,XMarkIcon,CheckIcon } from '@heroicons/vue/24/outline';
-
+import { 
+    UserCircleIcon as UserCircle, 
+    PencilSquareIcon as PencilSquare, 
+    XMarkIcon as XMark, 
+    CheckIcon as Check 
+} from '@heroicons/vue/24/outline';
 
 const authStore = useAuthStore();
 const accountStore = useAccountStore();
@@ -21,9 +25,27 @@ const formData = ref<Partial<Account>>({
     email: account.value?.email,
 });
 
+// Mettre à jour formData quand account change
+watch(account, (newAccount) => {
+    if (newAccount) {
+        formData.value = {
+            firstname: newAccount.firstname,
+            lastname: newAccount.lastname,
+            birthday: newAccount.birthday,
+            phone_number: newAccount.phone_number,
+            gender: newAccount.gender,
+            email: newAccount.email
+        };
+    }
+}, { immediate: true });
+
 const handleSubmit = async () => {
+  console.log('... je vais etre submit')
   if (account.value?.id && formData.value) {
+    console.log('... je vais lancer la promesse de modification')
     const updatedAccount = await accountStore.updateAccount(account.value?.id, formData.value);
+    console.log(updatedAccount)
+    console.log('.. apres la promesse')
     isEditing.value = false;
 
     authStore.account = updatedAccount as Account
@@ -35,7 +57,7 @@ const handleSubmit = async () => {
       <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
         <div class="p-6 border-b border-night-200">
           <div class="flex items-center space-x-3">
-            <UserCircleIcon class="h-8 w-8 text-orange-500" />
+            <UserCircle class="h-8 w-8 text-orange-500" />
             <h2 class="text-xl font-semibold text-night-900">Informations Personnelles</h2>
           </div>
         </div>
@@ -46,7 +68,7 @@ const handleSubmit = async () => {
               @click="isEditing = !isEditing"
               class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
             >
-              <PencilSquareIcon class="h-5 w-5 mr-2" />
+              <PencilSquare class="h-5 w-5 mr-2" />
               {{ isEditing ? 'Annuler' : 'Modifier' }}
             </button>
           </div>
@@ -56,7 +78,7 @@ const handleSubmit = async () => {
             <div class="lg:col-span-1">
               <div class="flex flex-col items-center p-6 bg-night-50 rounded-xl">
                 <div class="h-32 w-32 rounded-full bg-orange-100 flex items-center justify-center mb-4">
-                  <UserCircleIcon class="h-24 w-24 text-orange-500" />
+                  <UserCircle class="h-24 w-24 text-orange-500" />
                 </div>
                 <h3 class="text-xl font-medium text-night-900 text-center">
                   {{ account?.firstname }} {{ account?.lastname }}
@@ -162,14 +184,14 @@ const handleSubmit = async () => {
               @click="isEditing = false"
               class="inline-flex items-center px-4 py-2 border border-night-300 rounded-lg shadow-sm text-sm font-medium text-night-700 bg-white hover:bg-night-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
             >
-              <XMarkIcon class="h-5 w-5 mr-2" />
+              <XMark class="h-5 w-5 mr-2" />
               Annuler
             </button>
             <button
               @click="handleSubmit"
               class="inline-flex items-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
             >
-              <CheckIcon class="h-5 w-5 mr-2" />
+              <Check class="h-5 w-5 mr-2" />
               Enregistrer
             </button>
           </div>

@@ -39,7 +39,7 @@ const handleSubmit = () => {
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit" class="space-y-3">
+  <form id="accountForm" @submit.prevent="handleSubmit" class="space-y-3">
     <div class="grid grid-cols-2 gap-3">
       <!-- Colonne de gauche -->
       <div class="space-y-3">
