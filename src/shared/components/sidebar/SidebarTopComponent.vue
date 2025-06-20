@@ -38,7 +38,7 @@ const isAdmin = computed(() => authStore.isAdmin());
 const navigation = [
   { name: 'Dashboard', to: '/dashboard' },
   { name: 'Séances d\'entraînements', to: '/workout'},
-  { name: 'Mes exercices', to: '/exercices' },
+  { name: 'Mes exercices', to: '/exercises' },
   { name: 'Comptes utilisateurs', to: '/accounts', adminOnly: true },
   { name: 'Mon profil', to: '/profil' },
   { name: 'Paramètres', to: '/settings', adminOnly: true },
