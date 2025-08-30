@@ -1,11 +1,10 @@
 <script lang="ts" setup>
 import { onMounted, ref } from 'vue';
 import { useWorkoutStore } from '../store/useWorkoutStore';
-import type { Exercise } from '../models/Exercise';
-import type { Workout } from '../models/Workout';
+import StatsCardComponent from '@/shared/components/cards/StatsCardComponent.vue';
+import IconBookmark from '@/shared/components/icons/IconBookmark.vue'
 
 const workoutStore = useWorkoutStore()
-const selectedWorkout = ref<Workout | null>(null)
 
 // Stats data
 const stats = ref({
@@ -15,18 +14,6 @@ const stats = ref({
     totalSets: 48
 })
 
-// Chart data
-const exerciseProgress = ref({
-    labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-    datasets: [
-        {
-            label: 'Exercices complétés',
-            data: [8, 12, 6, 9, 15, 10, 7],
-            borderColor: '#3B82F6',
-            tension: 0.4
-        }
-    ]
-})
 
 onMounted(async () => {
     await workoutStore.fetchExercises()
@@ -38,7 +25,7 @@ const addExercise = () => {
 </script>
 
 <template>
-    <div class="min-h-screen text-blue-950 p-6">
+    <div class="min-h-screen text-blue-950">
         <!-- Header Section -->
         <!-- <div class="mb-8">
             <h1 class="text-4xl font-bold  mb-2">Exercices</h1>
@@ -48,6 +35,7 @@ const addExercise = () => {
         <!-- Stats Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <!-- Total Exercises Card -->
+             <StatsCardComponent title="Total Séances" :stat-number="stats.totalExercises + ''" :icon="IconBookmark" text="↑ 12% vs semaine dernière"/>
             <div class="bg-blue-950 backdrop-blur-lg rounded-xl p-6 border border-white/20">
                 <div class="flex items-center justify-between">
                     <div>

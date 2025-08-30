@@ -39,7 +39,7 @@ const addExercise = () => {
 </script>
 
 <template>
-    <div class="min-h-screen text-blue-950 p-6">
+    <div class="min-h-screen text-blue-950">
         <!-- Create Exercise Button -->
         <div class="mb-8">
             <button 
