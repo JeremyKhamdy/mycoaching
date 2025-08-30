@@ -4,17 +4,10 @@ import { useAuthStore } from '../store/useAuthStore';
 import LoginView from '../views/LoginView.vue';
 import VerifyOTPView from '../views/VerifyOTPView.vue';
 import CreateAccountView from '@/modules/accounts/views/CreateAccountView.vue'
-import { useAccountStore } from '@/modules/accounts/store/useAccountStore';
 
 const authStore = useAuthStore()
-const accountStore = useAccountStore()
 
-onMounted(async () => {
-    // if (authStore.user === null) {
-    //     await authStore.fetchUser()
-    //     accountStore.account = authStore.account
-    // }
-})
+onMounted(async () => {})
 </script>
 
 <template>

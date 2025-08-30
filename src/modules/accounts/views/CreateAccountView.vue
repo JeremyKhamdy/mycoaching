@@ -23,6 +23,7 @@ const accountStore = useAccountStore();
 const handleSubmit = async (account: Partial<Account>) => {
   // TODO: Implémenter la création du compte
 
+  console.log('... log avant de créer le compte')
   await accountStore.createAccount(account, props.user.email ?? '', props.user.id)
 
   console.log('Account to create:', account);

@@ -32,9 +32,9 @@ onMounted(() => {
       </div> -->
 
       <!-- Account Information Section -->
-      <InformationsComponent :account="account"/>
+      <InformationsComponent/>
       <!-- Health Section -->
-      <HealthComponent :account="account"/>
+      <HealthComponent/>
       <!-- Objectives Section -->
       <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
         <div class="p-6 border-b border-night-200">

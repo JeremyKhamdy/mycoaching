@@ -1,26 +1,27 @@
 import { defineStore } from 'pinia'
-import type { Exercice } from '../models/Exercice'
+import type { Exercise } from '../models/Exercise'
 import { ref } from 'vue'
-import { useExerciceService } from '../services/useExerciceService'
+import { useExerciseService } from '../services/useExerciseService'
 
 export const useWorkoutStore = defineStore('workout', () => {
-  const { getExercices } = useExerciceService()
-  const exercices = ref<Exercice[]>([])
+    const { getExercises } = useExerciseService()
+    const exercices = ref<Exercise[]>([])
 
-  const fetchExercices = async () => {
-    try {
-      const { data, error, status } = await getExercices()
+    const fetchExercises = async () => {
+        console.log('...fetching exercises:')
+        try {
+            const { data, error, status } = await getExercises()
 
-      console.log('data exercices:', data)
-      console.log('status:', status)
-      if (error) throw new Error(error.message)
-    } catch (e) {
-      console.log(e)
+            console.log('data exercises:', data)
+            console.log('status:', status)
+            if (error) throw new Error(error.message)
+        } catch (e) {
+            console.log(e)
+        }
     }
-  }
 
-  return {
-    exercices,
-    fetchExercices
-  }
+    return {
+        exercices,
+        fetchExercises
+    }
 })
